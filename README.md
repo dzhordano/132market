@@ -1,8 +1,7 @@
-# Marketplace Microsevices
+# Market Microsevices Thing
 
 ## Description
-    Задача в создании микросервисов, поддерживающих некоторые технологии, 
-    использующих определенные подходы, и закрывающий список задач для практического опыта.
+    . . .
 
 ### Services list & their completion
 - [ ] SSO
