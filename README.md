@@ -5,6 +5,10 @@
     использующих определенные подходы, и закрывающий список задач для практического опыта.
 
 ### Services list & their completion
+- [ ] API-Gateway
+  - [ ] Routing requests to other services
+  - [ ] Collecting incoming data and send it to Monitoring service
+  - [ ] . . .
 - [ ] SSO
   - [ ] Auth & OAuth w. JWT
   - [ ] Verifications
@@ -18,9 +22,6 @@
   - [ ] Code sending
   - [ ] Notifications sending
   - [ ] . . .
-- [ ] Notifying
-  - [ ] Periodic notifications about stuff (subbed to seller, items appeared, etc.)
-  - [ ] . . .
 - [ ] Marketplace
   - [ ] Users can search, buy, report or see details of goods.
   - [ ] Sellers create goods.
@@ -33,6 +34,10 @@
 - [ ] Ordering
   - [ ] Available for users to order some goods.
   - [ ] Canceling and seeing status of any order they've done.
+  - [ ] . . .
+- [ ] Monitoring
+  - [ ] Use Prometheus and Grafana
+  - [ ] Implement Alerting and Tracing
   - [ ] . . .
 
 ### Using

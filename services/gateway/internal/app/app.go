@@ -1,16 +1,18 @@
 package app
 
 import (
+	"dzhordano/132market/services/gateway/internal/config"
 	"dzhordano/132market/services/gateway/internal/delivery/http"
+	"dzhordano/132market/services/gateway/internal/server"
 	"log"
-	httpServ "net/http"
 )
 
 func Run() {
 	h := http.New()
 
-	err := httpServ.ListenAndServe(":8080", h.InitRoutes())
-	if err != nil {
+	s := server.New(config.NewHttpConfig().Address(), h.InitRoutes())
+
+	if err := s.Run(); err != nil {
 		log.Fatal(err)
 	}
 }

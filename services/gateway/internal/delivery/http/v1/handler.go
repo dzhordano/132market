@@ -25,6 +25,8 @@ func (h *handlerV1) InitRoutes() chi.Router {
 		r.Mount("/statistics", initStatisticsRoutes())
 		r.Mount("/chat", initChatRoutes())
 		r.Mount("/mailing", initMailingRoutes())
+		r.Mount("/admin", initAdminRoutes())
+		// TODO Нужен эндпоинт для метрик.
 	})
 
 	return r
