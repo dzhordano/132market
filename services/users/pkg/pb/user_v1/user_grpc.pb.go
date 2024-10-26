@@ -34,7 +34,7 @@ type UserServiceV1Client interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	FindUserById(ctx context.Context, in *FindUserByIdRequest, opts ...grpc.CallOption) (*FindUserByIdResponse, error)
-	FindAllUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FindAllUsersResponse, error)
+	FindAllUsers(ctx context.Context, in *FindAllUsersRequest, opts ...grpc.CallOption) (*FindAllUsersResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -76,7 +76,7 @@ func (c *userServiceV1Client) FindUserById(ctx context.Context, in *FindUserById
 	return out, nil
 }
 
-func (c *userServiceV1Client) FindAllUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*FindAllUsersResponse, error) {
+func (c *userServiceV1Client) FindAllUsers(ctx context.Context, in *FindAllUsersRequest, opts ...grpc.CallOption) (*FindAllUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(FindAllUsersResponse)
 	err := c.cc.Invoke(ctx, UserServiceV1_FindAllUsers_FullMethodName, in, out, cOpts...)
@@ -103,7 +103,7 @@ type UserServiceV1Server interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	FindUserById(context.Context, *FindUserByIdRequest) (*FindUserByIdResponse, error)
-	FindAllUsers(context.Context, *emptypb.Empty) (*FindAllUsersResponse, error)
+	FindAllUsers(context.Context, *FindAllUsersRequest) (*FindAllUsersResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServiceV1Server()
 }
@@ -124,7 +124,7 @@ func (UnimplementedUserServiceV1Server) UpdateUser(context.Context, *UpdateUserR
 func (UnimplementedUserServiceV1Server) FindUserById(context.Context, *FindUserByIdRequest) (*FindUserByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindUserById not implemented")
 }
-func (UnimplementedUserServiceV1Server) FindAllUsers(context.Context, *emptypb.Empty) (*FindAllUsersResponse, error) {
+func (UnimplementedUserServiceV1Server) FindAllUsers(context.Context, *FindAllUsersRequest) (*FindAllUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAllUsers not implemented")
 }
 func (UnimplementedUserServiceV1Server) DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error) {
@@ -206,7 +206,7 @@ func _UserServiceV1_FindUserById_Handler(srv interface{}, ctx context.Context, d
 }
 
 func _UserServiceV1_FindAllUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(FindAllUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func _UserServiceV1_FindAllUsers_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: UserServiceV1_FindAllUsers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceV1Server).FindAllUsers(ctx, req.(*emptypb.Empty))
+		return srv.(UserServiceV1Server).FindAllUsers(ctx, req.(*FindAllUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

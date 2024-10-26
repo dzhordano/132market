@@ -25,3 +25,7 @@
 ### Thoughts
 
     ...
+
+### Stuff i used
+
+- [go-ddd template](https://github.com/sklinkert/go-ddd/tree/main)

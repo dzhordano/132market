@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package api;
 
+import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 
 option go_package = "dzhordano/132market/services/users/internal/interface/api/grpc/pb/user_v1;user_v1";
@@ -10,7 +11,7 @@ service UserServiceV1 {
     rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
     rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
     rpc FindUserById(FindUserByIdRequest) returns (FindUserByIdResponse);
-    rpc FindAllUsers(google.protobuf.Empty) returns (FindAllUsersResponse);
+    rpc FindAllUsers(FindAllUsersRequest) returns (FindAllUsersResponse);
     rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
 }
 
@@ -18,8 +19,11 @@ message User {
     string id = 1;
     string name = 2;
     string email = 3;
-    string password = 4;
-    string role = 5;
+    repeated string roles = 4;
+    string status = 5;
+    string state = 6;
+    google.protobuf.Timestamp created_at = 7;
+    google.protobuf.Timestamp last_seen_at = 8;
 }
 
 message UserInfo {
@@ -51,6 +55,11 @@ message FindUserByIdRequest {
 
 message FindUserByIdResponse {
     User user = 1;
+}
+
+message FindAllUsersRequest {
+    int64 offset = 1;
+    int64 limit = 2;
 }
 
 message FindAllUsersResponse {

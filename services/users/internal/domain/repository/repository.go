@@ -1,11 +1,16 @@
 package repository
 
-import "dzhordano/132market/services/users/internal/domain/entities"
+import (
+	"context"
+	"dzhordano/132market/services/users/internal/domain/entities"
+
+	"github.com/google/uuid"
+)
 
 type UserRepository interface {
-	Save(user *entities.User) error
-	Update(user *entities.User) error // TODO Нужна ли отдельная структура для обновления?
-	Delete(id string) error
-	FindById(id string) (*entities.User, error)
-	FindAll() ([]*entities.User, error)
+	Save(ctx context.Context, user *entities.User) (*entities.User, error)
+	Update(ctx context.Context, user *entities.User) (*entities.User, error) // TODO Нужна ли отдельная структура для обновления?
+	Delete(ctx context.Context, id uuid.UUID) error
+	FindById(ctx context.Context, id uuid.UUID) (*entities.User, error)
+	FindAll(ctx context.Context) ([]*entities.User, error)
 }
