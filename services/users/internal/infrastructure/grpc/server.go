@@ -2,6 +2,7 @@ package grpc
 
 import (
 	desc "dzhordano/132market/services/users/pkg/pb/user_v1"
+	"log"
 	"net"
 
 	"dzhordano/132market/services/users/internal/application/interfaces"
@@ -34,6 +35,8 @@ func (s *GRPCServer) Run(address string) error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Starting grpc server on address: %s", address)
 
 	return s.server.Serve(list)
 }

@@ -46,7 +46,7 @@ func (u *UserController) UpdateUser(ctx context.Context, request *user_v1.Update
 }
 
 func (u *UserController) DeleteUser(ctx context.Context, request *user_v1.DeleteUserRequest) (*emptypb.Empty, error) {
-	id, err := uuid.FromBytes([]byte(request.Id))
+	id, err := uuid.Parse(request.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func (u *UserController) FindUserById(ctx context.Context, request *user_v1.Find
 }
 
 func (u *UserController) FindAllUsers(ctx context.Context, request *user_v1.FindAllUsersRequest) (*user_v1.FindAllUsersResponse, error) {
-	queryResp, err := u.userService.FindAllUsers(ctx, request.GetLimit(), request.GetOffset())
+	queryResp, err := u.userService.FindAllUsers(ctx, request.GetOffset(), request.GetLimit())
 	if err != nil {
 		return nil, err
 	}

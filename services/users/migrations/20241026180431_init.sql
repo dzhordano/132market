@@ -10,7 +10,8 @@ CREATE TABLE users (
     status VARCHAR(50) NOT NULL,
     state VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    last_seen_at TIMESTAMP NOT NULL
+    last_seen_at TIMESTAMP NOT NULL,
+    deleted_at TIMESTAMP
 );
 -- +goose StatementEnd
 

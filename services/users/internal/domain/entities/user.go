@@ -17,6 +17,7 @@ type User struct {
 	State        State
 	CreatedAt    time.Time
 	LastSeenAt   time.Time
+	DeletedAt    *time.Time
 	Tokens       Tokens // TODO мб нужно убрать, когда продумаю JWT с рефрешем над решить оно тута нужновое?
 }
 
@@ -72,6 +73,7 @@ type State string
 const (
 	StateActive  State = "active"
 	StateBlocked State = "blocked"
+	StateDeleted State = "deleted"
 )
 
 func (s State) String() string {
@@ -102,7 +104,7 @@ func NewUser(name, email, password string) (*User, error) {
 		Name:         name,
 		Email:        email,
 		PasswordHash: password,
-		Status:       StatusOnline,
+		Status:       StatusOffline,
 		State:        StateActive,
 		CreatedAt:    time.Now(),
 		LastSeenAt:   time.Now(),
@@ -121,7 +123,35 @@ func (u *User) RolesToStrings() []string {
 	return roles
 }
 
-// FIXME провадилировать...
+func (u *User) UpdateName(newName string) error {
+	u.Name = newName
+
+	return u.Validate()
+}
+
+func (u *User) UpdateEmail(newEmail string) error {
+	u.Email = newEmail
+
+	return u.Validate()
+}
+
+func (u *User) UpdatePassword(newPassword string) error {
+	u.PasswordHash = newPassword
+
+	return u.Validate()
+}
+
+// FIXME улучшить валидацию
 func (u *User) Validate() error {
+	if u.Name == "" {
+		return fmt.Errorf("user name is empty")
+	}
+	if u.Email == "" {
+		return fmt.Errorf("user email is empty")
+	}
+	if u.PasswordHash == "" {
+		return fmt.Errorf("user password is empty")
+	}
+
 	return nil
 }

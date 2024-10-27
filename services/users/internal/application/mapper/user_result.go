@@ -21,3 +21,11 @@ func NewUserResultFromEntity(entity *entities.User) *model.UserResult {
 		CreatedAt:  entity.CreatedAt,
 	}
 }
+
+func NewUserResultListFromEntities(entities []*entities.User) []*model.UserResult {
+	var userResults []*model.UserResult
+	for _, entity := range entities {
+		userResults = append(userResults, NewUserResultFromEntity(entity))
+	}
+	return userResults
+}

@@ -13,5 +13,5 @@ type UserService interface {
 	UpdateUser(ctx context.Context, userCommand *command.UpdateUserCommand) (*command.UpdateUserCommandResult, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	FindUserById(ctx context.Context, id uuid.UUID) (*query.UserQueryResult, error)
-	FindAllUsers(ctx context.Context, offset, limit int64) (*query.UserQueryListResult, error)
+	FindAllUsers(ctx context.Context, offset, limit uint64) (*query.UserQueryListResult, error)
 }

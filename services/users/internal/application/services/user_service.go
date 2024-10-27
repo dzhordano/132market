@@ -51,11 +51,45 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.UpdateUserCommand) (*command.UpdateUserCommandResult, error) {
-	panic("not implemented")
+	user, err := s.repo.FindById(ctx, userCommand.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	s.logger.Debug("User found:", slog.Any("user", user))
+
+	user.UpdateName(userCommand.Name)
+	user.UpdateEmail(userCommand.Email)
+	user.UpdatePassword(userCommand.Password)
+
+	if err := user.Validate(); err != nil {
+		return nil, err
+	}
+
+	s.logger.Debug("User updated and validated:", slog.Any("user", user))
+
+	respUser, err := s.repo.Update(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	s.logger.Debug("User updated:", slog.Any("user", respUser))
+
+	result := command.UpdateUserCommandResult{
+		Result: mapper.NewUserResultFromEntity(respUser),
+	}
+
+	return &result, nil
 }
 
 func (s *UserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	panic("not implemented")
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	s.logger.Debug("User deleted:", slog.Any("id", id))
+
+	return nil
 }
 
 func (s *UserService) FindUserById(ctx context.Context, id uuid.UUID) (*query.UserQueryResult, error) {
@@ -73,6 +107,18 @@ func (s *UserService) FindUserById(ctx context.Context, id uuid.UUID) (*query.Us
 	return &result, nil
 }
 
-func (s *UserService) FindAllUsers(ctx context.Context, offset, limit int64) (*query.UserQueryListResult, error) {
-	panic("not implemented")
+func (s *UserService) FindAllUsers(ctx context.Context, offset, limit uint64) (*query.UserQueryListResult, error) {
+	respUsers, err := s.repo.FindAll(ctx, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	// FIXME Очередное маг. число, изменить скок выводить
+	s.logger.Debug("Users found:", slog.Any("users", respUsers[:min(limit, 5)]))
+
+	result := query.UserQueryListResult{
+		Result: mapper.NewUserResultListFromEntities(respUsers),
+	}
+
+	return &result, nil
 }

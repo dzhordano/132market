@@ -25,7 +25,7 @@ func main() {
 	logger.Info("Starting server ...")
 
 	if err := serv.Run(":55001"); err != nil {
-		logger.Error("Failed to run server", err)
+		slog.Error("Failed to run server:", slog.String("error", err.Error()))
 	}
 
 }

@@ -3,6 +3,8 @@ package mapper
 import (
 	"dzhordano/132market/services/users/internal/application/command"
 	"dzhordano/132market/services/users/pkg/pb/user_v1"
+
+	"github.com/google/uuid"
 )
 
 func CreateUserRequestToCommand(req *user_v1.CreateUserRequest) *command.CreateUserCommand {
@@ -15,6 +17,7 @@ func CreateUserRequestToCommand(req *user_v1.CreateUserRequest) *command.CreateU
 
 func UpdateUserRequestToCommand(req *user_v1.UpdateUserRequest) *command.UpdateUserCommand {
 	return &command.UpdateUserCommand{
+		Id:       uuid.MustParse(req.GetId()), // TODO Нормально ли так делать (тут сразу будет паниковать)?
 		Name:     req.Info.GetName(),
 		Email:    req.Info.GetEmail(),
 		Password: req.Info.GetPassword(),

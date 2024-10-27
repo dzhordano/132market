@@ -42,7 +42,8 @@ message CreateUserResponse {
 }
 
 message UpdateUserRequest {
-    UserInfo info = 1;
+    string id = 1;
+    UserInfo info = 2;
 }
 
 message UpdateUserResponse {
@@ -58,8 +59,8 @@ message FindUserByIdResponse {
 }
 
 message FindAllUsersRequest {
-    int64 offset = 1;
-    int64 limit = 2;
+    uint64 offset = 1;
+    uint64 limit = 2;
 }
 
 message FindAllUsersResponse {
