@@ -18,7 +18,6 @@ type User struct {
 	CreatedAt    time.Time
 	LastSeenAt   time.Time
 	DeletedAt    *time.Time
-	Tokens       Tokens // TODO мб нужно убрать, когда продумаю JWT с рефрешем над решить оно тута нужновое?
 }
 
 type Role string
@@ -82,13 +81,6 @@ func (s State) String() string {
 
 func (u *User) ChangeState(state State) {
 	u.State = state
-}
-
-type Tokens struct {
-	AccessToken  string
-	ATExpiresAt  time.Time
-	RefreshToken string
-	RTExpiresAt  time.Time
 }
 
 func NewUser(name, email, password string) (*User, error) {

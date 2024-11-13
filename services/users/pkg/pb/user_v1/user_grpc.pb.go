@@ -20,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UserServiceV1_CreateUser_FullMethodName   = "/api.UserServiceV1/CreateUser"
-	UserServiceV1_UpdateUser_FullMethodName   = "/api.UserServiceV1/UpdateUser"
-	UserServiceV1_FindUserById_FullMethodName = "/api.UserServiceV1/FindUserById"
-	UserServiceV1_FindAllUsers_FullMethodName = "/api.UserServiceV1/FindAllUsers"
-	UserServiceV1_DeleteUser_FullMethodName   = "/api.UserServiceV1/DeleteUser"
+	UserServiceV1_CreateUser_FullMethodName            = "/api.UserServiceV1/CreateUser"
+	UserServiceV1_UpdateUser_FullMethodName            = "/api.UserServiceV1/UpdateUser"
+	UserServiceV1_FindUserById_FullMethodName          = "/api.UserServiceV1/FindUserById"
+	UserServiceV1_FindUserByCredentials_FullMethodName = "/api.UserServiceV1/FindUserByCredentials"
+	UserServiceV1_FindAllUsers_FullMethodName          = "/api.UserServiceV1/FindAllUsers"
+	UserServiceV1_DeleteUser_FullMethodName            = "/api.UserServiceV1/DeleteUser"
 )
 
 // UserServiceV1Client is the client API for UserServiceV1 service.
@@ -34,6 +35,7 @@ type UserServiceV1Client interface {
 	CreateUser(ctx context.Context, in *CreateUserRequest, opts ...grpc.CallOption) (*CreateUserResponse, error)
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	FindUserById(ctx context.Context, in *FindUserByIdRequest, opts ...grpc.CallOption) (*FindUserByIdResponse, error)
+	FindUserByCredentials(ctx context.Context, in *FindUserByCredentialsRequest, opts ...grpc.CallOption) (*FindUserByCredentialsResponse, error)
 	FindAllUsers(ctx context.Context, in *FindAllUsersRequest, opts ...grpc.CallOption) (*FindAllUsersResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -76,6 +78,16 @@ func (c *userServiceV1Client) FindUserById(ctx context.Context, in *FindUserById
 	return out, nil
 }
 
+func (c *userServiceV1Client) FindUserByCredentials(ctx context.Context, in *FindUserByCredentialsRequest, opts ...grpc.CallOption) (*FindUserByCredentialsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindUserByCredentialsResponse)
+	err := c.cc.Invoke(ctx, UserServiceV1_FindUserByCredentials_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userServiceV1Client) FindAllUsers(ctx context.Context, in *FindAllUsersRequest, opts ...grpc.CallOption) (*FindAllUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(FindAllUsersResponse)
@@ -103,6 +115,7 @@ type UserServiceV1Server interface {
 	CreateUser(context.Context, *CreateUserRequest) (*CreateUserResponse, error)
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	FindUserById(context.Context, *FindUserByIdRequest) (*FindUserByIdResponse, error)
+	FindUserByCredentials(context.Context, *FindUserByCredentialsRequest) (*FindUserByCredentialsResponse, error)
 	FindAllUsers(context.Context, *FindAllUsersRequest) (*FindAllUsersResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedUserServiceV1Server()
@@ -123,6 +136,9 @@ func (UnimplementedUserServiceV1Server) UpdateUser(context.Context, *UpdateUserR
 }
 func (UnimplementedUserServiceV1Server) FindUserById(context.Context, *FindUserByIdRequest) (*FindUserByIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindUserById not implemented")
+}
+func (UnimplementedUserServiceV1Server) FindUserByCredentials(context.Context, *FindUserByCredentialsRequest) (*FindUserByCredentialsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindUserByCredentials not implemented")
 }
 func (UnimplementedUserServiceV1Server) FindAllUsers(context.Context, *FindAllUsersRequest) (*FindAllUsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindAllUsers not implemented")
@@ -205,6 +221,24 @@ func _UserServiceV1_FindUserById_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UserServiceV1_FindUserByCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindUserByCredentialsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceV1Server).FindUserByCredentials(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServiceV1_FindUserByCredentials_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceV1Server).FindUserByCredentials(ctx, req.(*FindUserByCredentialsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UserServiceV1_FindAllUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FindAllUsersRequest)
 	if err := dec(in); err != nil {
@@ -259,6 +293,10 @@ var UserServiceV1_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindUserById",
 			Handler:    _UserServiceV1_FindUserById_Handler,
+		},
+		{
+			MethodName: "FindUserByCredentials",
+			Handler:    _UserServiceV1_FindUserByCredentials_Handler,
 		},
 		{
 			MethodName: "FindAllUsers",

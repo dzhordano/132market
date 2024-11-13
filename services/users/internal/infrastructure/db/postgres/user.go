@@ -26,8 +26,32 @@ func NewUserRepository(db *pgxpool.Pool) repository.UserRepository {
 
 func (r *UserRepository) FindById(ctx context.Context, id uuid.UUID) (*entities.User, error) {
 	selectBuilder := sq.Select("*").
-		From("users").
+		From(usersTable).
 		Where(sq.Eq{"id": id}).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	row := r.db.QueryRow(ctx, query, args...)
+
+	var user entities.User
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+func (r *UserRepository) FindByCredentials(ctx context.Context, email, password string) (*entities.User, error) {
+	selectBuilder := sq.Select("*").
+		From(usersTable).
+		Where(sq.And{
+			sq.Eq{"email": email},
+			sq.Eq{"password_hash": password},
+		}).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := selectBuilder.ToSql()
@@ -47,7 +71,7 @@ func (r *UserRepository) FindById(ctx context.Context, id uuid.UUID) (*entities.
 
 func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64) ([]*entities.User, error) {
 	selectBuilder := sq.Select("*").
-		From("users").
+		From(usersTable).
 		Offset(offset).
 		Limit(limit).
 		PlaceholderFormat(sq.Dollar)
@@ -85,7 +109,7 @@ func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64) ([]*
 }
 
 func (r *UserRepository) Save(ctx context.Context, user *entities.User) (*entities.User, error) {
-	insertBuilder := sq.Insert("users").
+	insertBuilder := sq.Insert(usersTable).
 		Columns("id", "name", "email", "password_hash", "roles", "status", "state", "created_at", "last_seen_at").
 		Values(user.ID, user.Name, user.Email, user.PasswordHash, user.RolesToStrings(), user.Status, user.State, user.CreatedAt, user.LastSeenAt).
 		PlaceholderFormat(sq.Dollar)

@@ -3,8 +3,8 @@
 ## Description
 
 - Basic CRUD Operations
-- /generated stays for generated files
-- /api for api definitions
+- /pkg/pb - generated proto files
+- /api - api definition
 
 ## Usage
 

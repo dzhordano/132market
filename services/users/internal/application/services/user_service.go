@@ -25,7 +25,7 @@ func NewUserService(logger logger.Logger, repo repository.UserRepository) interf
 }
 
 func (s *UserService) CreateUser(ctx context.Context, userCommand *command.CreateUserCommand) (*command.CreateUserCommandResult, error) {
-	newUser, err := entities.NewUser(userCommand.Name, userCommand.Email, userCommand.Password)
+	newUser, err := entities.NewUser(userCommand.Name, userCommand.Email, userCommand.Password) // TODO There is no hashing for password yet
 	if err != nil {
 		return nil, err
 	}
@@ -107,6 +107,21 @@ func (s *UserService) FindUserById(ctx context.Context, id uuid.UUID) (*query.Us
 	return &result, nil
 }
 
+func (s *UserService) FindUserByCredentials(ctx context.Context, email, password string) (*query.UserQueryResult, error) {
+	respUser, err := s.repo.FindByCredentials(ctx, email, password) // TODO Hash password before passing
+	if err != nil {
+		return nil, err
+	}
+
+	s.logger.Debug("User found:", slog.Any("user", respUser))
+
+	result := query.UserQueryResult{
+		Result: mapper.NewUserResultFromEntity(respUser),
+	}
+
+	return &result, nil
+}
+
 func (s *UserService) FindAllUsers(ctx context.Context, offset, limit uint64) (*query.UserQueryListResult, error) {
 	respUsers, err := s.repo.FindAll(ctx, offset, limit)
 	if err != nil {
@@ -114,7 +129,7 @@ func (s *UserService) FindAllUsers(ctx context.Context, offset, limit uint64) (*
 	}
 
 	// FIXME Очередное маг. число, изменить скок выводить
-	s.logger.Debug("Users found:", slog.Any("users", respUsers[:min(limit, 5)]))
+	s.logger.Debug("Users found:", slog.Any("users", respUsers[:min(int(limit), len(respUsers), 5)]))
 
 	result := query.UserQueryListResult{
 		Result: mapper.NewUserResultListFromEntities(respUsers),

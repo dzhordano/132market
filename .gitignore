@@ -25,3 +25,5 @@ go.work.sum
 *.env
 # idea files
 *.idea
+# local binaries
+*.bin/

@@ -75,6 +75,17 @@ func (u *UserController) FindUserById(ctx context.Context, request *user_v1.Find
 	return &user_v1.FindUserByIdResponse{User: response}, nil
 }
 
+func (u *UserController) FindUserByCredentials(ctx context.Context, request *user_v1.FindUserByCredentialsRequest) (*user_v1.FindUserByCredentialsResponse, error) {
+	queryResp, err := u.userService.FindUserByCredentials(ctx, request.GetEmail(), request.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	response := mapper.ToUserResponse(queryResp.Result)
+
+	return &user_v1.FindUserByCredentialsResponse{User: response}, nil
+}
+
 func (u *UserController) FindAllUsers(ctx context.Context, request *user_v1.FindAllUsersRequest) (*user_v1.FindAllUsersResponse, error) {
 	queryResp, err := u.userService.FindAllUsers(ctx, request.GetOffset(), request.GetLimit())
 	if err != nil {

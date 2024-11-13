@@ -1,10 +1,12 @@
 # Marketplace Microsevices
 
 ## Description
+
     Задача в создании микросервисов, поддерживающих некоторые технологии, 
     использующих определенные подходы, и закрывающий список задач для практического опыта.
 
 ### Services list & their completion
+
 - [ ] API-Gateway
   - [ ] Routing requests to other services
   - [ ] Collecting incoming data and send it to Monitoring service
@@ -16,8 +18,8 @@
   - [ ] Session management
   - [ ] Token validation for other services to use
 - [ ] Users services
-    - [ ] Basic CRUD Operations
-    - [ ] Setting-up CORS and role based auth (for admins) 
+  - [ ] Basic CRUD Operations
+  - [ ] Setting-up CORS and role based auth (for admins)
 - [ ] Mailing
   - [ ] Code sending
   - [ ] Notifications sending
@@ -41,6 +43,7 @@
   - [ ] . . .
 
 ### Using
+
 - [ ] Docker
 - [ ] Kubernetes
 - [ ] Nginx
