@@ -11,6 +11,7 @@ CREATE TABLE users (
     state VARCHAR(50) NOT NULL,
     created_at TIMESTAMP NOT NULL,
     last_seen_at TIMESTAMP NOT NULL,
+    is_deleted BOOL DEFAULT FALSE,
     deleted_at TIMESTAMP
 );
 -- +goose StatementEnd

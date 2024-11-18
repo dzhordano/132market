@@ -17,7 +17,8 @@ type User struct {
 	State        State
 	CreatedAt    time.Time
 	LastSeenAt   time.Time
-	DeletedAt    *time.Time
+	IsDeleted    bool
+	DeletedAt    time.Time
 }
 
 type Role string
@@ -100,6 +101,7 @@ func NewUser(name, email, password string) (*User, error) {
 		State:        StateActive,
 		CreatedAt:    time.Now(),
 		LastSeenAt:   time.Now(),
+		IsDeleted:    false,
 	}
 
 	user.AddRole(RoleUser)
@@ -144,6 +146,19 @@ func (u *User) Validate() error {
 	if u.PasswordHash == "" {
 		return fmt.Errorf("user password is empty")
 	}
+
+	return nil
+}
+
+func (u *User) DeleteUser() error {
+	if u.HasRole(RoleAdmin) {
+		return fmt.Errorf("cannot delete admin user") // FIXME норм ваще причина? ха-ха
+	}
+
+	u.Status = StatusOffline
+	u.State = StateDeleted
+	u.IsDeleted = true
+	u.DeletedAt = time.Now()
 
 	return nil
 }

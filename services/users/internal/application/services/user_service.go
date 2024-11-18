@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"dzhordano/132market/services/users/internal/application/command"
+	"dzhordano/132market/services/users/internal/application/errors"
 	"dzhordano/132market/services/users/internal/application/interfaces"
 	"dzhordano/132market/services/users/internal/application/mapper"
 	"dzhordano/132market/services/users/internal/application/query"
@@ -31,7 +32,7 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 	}
 
 	if err := newUser.Validate(); err != nil {
-		return nil, err
+		return nil, errors.ToGRPCError(errors.ErrBadRequest)
 	}
 
 	s.logger.Debug("User created and validated:", slog.Any("user", newUser))
@@ -82,12 +83,22 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 	return &result, nil
 }
 
+// FIXME Soft-Delete метод.
 func (s *UserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	if err := s.repo.Delete(ctx, id); err != nil {
+	user, err := s.repo.FindById(ctx, id)
+	if err != nil {
 		return err
 	}
 
-	s.logger.Debug("User deleted:", slog.Any("id", id))
+	if err := user.DeleteUser(); err != nil {
+		return err
+	}
+
+	if _, err := s.repo.Update(ctx, user); err != nil {
+		return err
+	}
+
+	s.logger.Debug("User deleted (soft):", slog.Any("id", id))
 
 	return nil
 }

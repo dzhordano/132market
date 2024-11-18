@@ -20,11 +20,9 @@ generate-user-api-v1:
 	--plugin=protoc-gen-go-grpc=.bin/protoc-gen-go-grpc.exe \
 	api/proto/user_v1/user.proto
 
-init-db:
-	docker run --name=users-db -p 5401:5432 -e POSTGRES_PASSWORD=postgres -d postgres
-
 include .env
-MIGRATIONS_DSN="host=${POSTGRES_HOST} port=${POSTGRES_PORT} dbname=${POSTGRES_DBNAME} user=${POSTGRES_USER} password=${POSTGRES_PASSWORD} sslmode=${POSTGRES_SSLMODE}"
+init-db:
+	docker run --name=users-db -p ${POSTGRES_PORT}:5432 -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d postgres
 
 goose-up:
-	goose -dir migrations postgres ${MIGRATIONS_DSN} up
+	goose -dir migrations postgres ${POSTGRES_DSN} up
