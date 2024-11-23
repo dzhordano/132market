@@ -4,10 +4,14 @@ go 1.23.0
 
 require (
 	github.com/go-chi/chi/v5 v5.1.0
+	github.com/go-playground/assert/v2 v2.2.0
 	github.com/google/uuid v1.6.0
+	github.com/jackc/pgerrcode v0.0.0-20240316143900-6e2875d9b438
 	github.com/joho/godotenv v1.5.1
+	go.uber.org/mock v0.5.0
 	google.golang.org/grpc v1.65.0
 	google.golang.org/protobuf v1.35.1
+	gopkg.in/mail.v2 v2.3.1
 )
 
 require (
@@ -18,6 +22,7 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 
 require (

@@ -11,7 +11,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgerrcode"
-	"github.com/jackc/pgx"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -44,10 +44,10 @@ func (r *UserRepository) FindById(ctx context.Context, id uuid.UUID) (*entities.
 
 	var user entities.User
 	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
-		var pgErr *pgx.PgError
+		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.NoDataFound {
-				return nil, fmt.Errorf("%s: %w", op, errors.New("no rows")) // TODO Сделать здесь константу
+				return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
 			}
 		}
 
@@ -77,10 +77,10 @@ func (r *UserRepository) FindByCredentials(ctx context.Context, email, password 
 
 	var user entities.User
 	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
-		var pgErr *pgx.PgError
+		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.NoDataFound {
-				return nil, fmt.Errorf("%s: %w", op, errors.New("no rows")) // TODO Сделать здесь константу
+				return nil, fmt.Errorf("%s: %w", op, ErrNotFound) // TODO Сделать здесь константу
 			}
 		}
 
@@ -125,7 +125,7 @@ func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64) ([]*
 
 	// FIXME обернуть нормально ошибку
 	if len(users) == 0 {
-		return nil, fmt.Errorf("%s: %w", op, errors.New("no rows")) // TODO Сделать константой
+		return nil, fmt.Errorf("%s: %w", op, ErrNotFound) // TODO Сделать константой
 	}
 
 	return users, nil
@@ -146,10 +146,10 @@ func (r *UserRepository) Save(ctx context.Context, user *entities.User) (*entiti
 
 	_, err = r.db.Exec(ctx, query, args...)
 	if err != nil {
-		var pgErr *pgx.PgError
+		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.UniqueViolation {
-				return nil, fmt.Errorf("%s: %w", op, errors.New("already exists")) // TODO Сделать константой
+				return nil, fmt.Errorf("%s: %w", op, ErrAlreadyExists) // TODO Сделать константой
 			}
 		}
 
@@ -182,13 +182,13 @@ func (r *UserRepository) Update(ctx context.Context, user *entities.User) (*enti
 
 	_, err = r.db.Exec(ctx, query, args...)
 	if err != nil {
-		var pgErr *pgx.PgError
+		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.NoDataFound {
-				return nil, fmt.Errorf("%s: %w", op, errors.New("no rows")) // TODO Сделать константой
+				return nil, fmt.Errorf("%s: %w", op, ErrNotFound) // TODO Сделать константой
 			}
 			if pgErr.Code == pgerrcode.UniqueViolation {
-				return nil, fmt.Errorf("%s: %w", op, errors.New("already exists")) // TODO Сделать константой + подумать правильная ли ошибка
+				return nil, fmt.Errorf("%s: %w", op, ErrAlreadyExists) // TODO Сделать константой + подумать правильная ли ошибка
 			}
 		}
 
@@ -215,10 +215,10 @@ func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 
 	_, err = r.db.Exec(ctx, query, args...)
 	if err != nil {
-		var pgErr *pgx.PgError
+		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.NoDataFound {
-				return fmt.Errorf("%s: %w", op, errors.New("no rows")) // TODO Сделать константой
+				return fmt.Errorf("%s: %w", op, ErrNotFound)
 			}
 		}
 

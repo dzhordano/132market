@@ -6,7 +6,6 @@ import (
 	"dzhordano/132market/services/users/internal/interfaces/grpc/dto/mapper"
 	"dzhordano/132market/services/users/pkg/pb/user_v1"
 
-	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -46,12 +45,7 @@ func (u *UserController) UpdateUser(ctx context.Context, request *user_v1.Update
 }
 
 func (u *UserController) DeleteUser(ctx context.Context, request *user_v1.DeleteUserRequest) (*emptypb.Empty, error) {
-	id, err := uuid.Parse(request.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	err = u.userService.DeleteUser(ctx, id)
+	err := u.userService.DeleteUser(ctx, request.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -60,12 +54,7 @@ func (u *UserController) DeleteUser(ctx context.Context, request *user_v1.Delete
 }
 
 func (u *UserController) FindUserById(ctx context.Context, request *user_v1.FindUserByIdRequest) (*user_v1.FindUserByIdResponse, error) {
-	id, err := uuid.Parse(request.Id)
-	if err != nil {
-		return nil, err
-	}
-
-	queryResp, err := u.userService.FindUserById(ctx, id)
+	queryResp, err := u.userService.FindUserById(ctx, request.GetId())
 	if err != nil {
 		return nil, err
 	}

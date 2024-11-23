@@ -39,7 +39,8 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 
 	respUser, err := s.repo.Save(ctx, newUser)
 	if err != nil {
-		return nil, err
+		s.logger.Debug("Returning error: ", err)
+		return nil, errors.ToGRPCError(err)
 	}
 
 	s.logger.Debug("User saved:", slog.Any("user", respUser))
@@ -52,7 +53,12 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.UpdateUserCommand) (*command.UpdateUserCommandResult, error) {
-	user, err := s.repo.FindById(ctx, userCommand.Id)
+	userId, err := uuid.Parse(userCommand.Id)
+	if err != nil {
+		return nil, errors.ToGRPCError(errors.ErrBadRequest)
+	}
+
+	user, err := s.repo.FindById(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -64,14 +70,14 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 	user.UpdatePassword(userCommand.Password)
 
 	if err := user.Validate(); err != nil {
-		return nil, err
+		return nil, errors.ToGRPCError(errors.ErrBadRequest)
 	}
 
 	s.logger.Debug("User updated and validated:", slog.Any("user", user))
 
 	respUser, err := s.repo.Update(ctx, user)
 	if err != nil {
-		return nil, err
+		return nil, errors.ToGRPCError(errors.ErrBadRequest)
 	}
 
 	s.logger.Debug("User updated:", slog.Any("user", respUser))
@@ -84,8 +90,13 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 }
 
 // FIXME Soft-Delete метод.
-func (s *UserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	user, err := s.repo.FindById(ctx, id)
+func (s *UserService) DeleteUser(ctx context.Context, id string) error {
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		return errors.ToGRPCError(errors.ErrBadRequest)
+	}
+
+	user, err := s.repo.FindById(ctx, userId)
 	if err != nil {
 		return err
 	}
@@ -103,8 +114,13 @@ func (s *UserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (s *UserService) FindUserById(ctx context.Context, id uuid.UUID) (*query.UserQueryResult, error) {
-	respUser, err := s.repo.FindById(ctx, id)
+func (s *UserService) FindUserById(ctx context.Context, id string) (*query.UserQueryResult, error) {
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		return nil, errors.ToGRPCError(errors.ErrBadRequest)
+	}
+
+	respUser, err := s.repo.FindById(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -136,9 +152,8 @@ func (s *UserService) FindUserByCredentials(ctx context.Context, email, password
 func (s *UserService) FindAllUsers(ctx context.Context, offset, limit uint64) (*query.UserQueryListResult, error) {
 	respUsers, err := s.repo.FindAll(ctx, offset, limit)
 	if err != nil {
-		return nil, err
+		return nil, errors.ToGRPCError(err)
 	}
-
 	// FIXME Очередное маг. число, изменить скок выводить
 	s.logger.Debug("Users found:", slog.Any("users", respUsers[:min(int(limit), len(respUsers), 5)]))
 

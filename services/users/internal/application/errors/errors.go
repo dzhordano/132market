@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"dzhordano/132market/services/users/internal/infrastructure/db/postgres"
 	"errors"
 
 	"google.golang.org/grpc/codes"
@@ -11,17 +12,20 @@ var (
 	ErrNotFound        = errors.New("not found")
 	ErrInternalFailure = errors.New("internal failure")
 	ErrBadRequest      = errors.New("bad request")
-	// ErrUserNotFound = status.Error(codes.NotFound, "user not found")
-	// ErrUnauthorized = status.Error(codes.Unauthenticated, "unauthorized")
-	// ErrInternal     = status.Error(codes.Internal, "internal error")
+	ErrAlreadyExists   = errors.New("already exists")
 )
 
 func ToGRPCError(err error) error {
 	switch {
-	case errors.Is(err, ErrNotFound):
+	case errors.Is(err, postgres.ErrNotFound):
 		return status.Error(codes.NotFound, "not found")
+
 	case errors.Is(err, ErrBadRequest):
 		return status.Error(codes.InvalidArgument, "bad request")
+
+	case errors.Is(err, postgres.ErrAlreadyExists):
+		return status.Error(codes.AlreadyExists, "already exists")
+
 	default:
 		return status.Error(codes.Internal, "internal error")
 	}

@@ -2,6 +2,8 @@ package entities
 
 import (
 	"fmt"
+	"net/mail"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -135,16 +137,33 @@ func (u *User) UpdatePassword(newPassword string) error {
 	return u.Validate()
 }
 
+const notLetters = `!"#$%&'()*+,-./:;<=>?@[\]^_`
+const digits = "0123456789"
+
 // FIXME улучшить валидацию
 func (u *User) Validate() error {
-	if u.Name == "" {
-		return fmt.Errorf("user name is empty")
+	if _, err := uuid.Parse(u.ID.String()); err != nil {
+		return fmt.Errorf("user id is invalid")
 	}
+
+	if u.Name == "" || strings.Contains(u.Name, notLetters) || strings.Contains(u.Name, digits) || len(u.Name) < 2 {
+		return fmt.Errorf("invalid name")
+	}
+
 	if u.Email == "" {
-		return fmt.Errorf("user email is empty")
+		return fmt.Errorf("invalid email address")
 	}
-	if u.PasswordHash == "" {
-		return fmt.Errorf("user password is empty")
+
+	if _, err := mail.ParseAddress(u.Email); err != nil {
+		return fmt.Errorf("invalid email address")
+	}
+
+	if u.PasswordHash == "" || strings.Contains(u.PasswordHash, "_-") {
+		return fmt.Errorf("invalid password. symbols '_', '-' and '=' are not allowed")
+	}
+
+	if len(u.PasswordHash) < 8 || !strings.Contains(u.PasswordHash, "!@#$%^&*()+") {
+		return fmt.Errorf("password must be at least 8 characters long and contain at least one digit and special symbol")
 	}
 
 	return nil
