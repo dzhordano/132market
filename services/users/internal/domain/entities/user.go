@@ -137,16 +137,17 @@ func (u *User) UpdatePassword(newPassword string) error {
 	return u.Validate()
 }
 
-const notLetters = `!"#$%&'()*+,-./:;<=>?@[\]^_`
+const symbols = `$*()#@!%/`
 const digits = "0123456789"
+const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-// FIXME улучшить валидацию
+// FIXME улучшить валидацию?
 func (u *User) Validate() error {
 	if _, err := uuid.Parse(u.ID.String()); err != nil {
 		return fmt.Errorf("user id is invalid")
 	}
 
-	if u.Name == "" || strings.Contains(u.Name, notLetters) || strings.Contains(u.Name, digits) || len(u.Name) < 2 {
+	if u.Name == "" || strings.Contains(u.Name, symbols+digits) || len(u.Name) < 2 || len(u.Name) > 50 {
 		return fmt.Errorf("invalid name")
 	}
 
@@ -158,11 +159,17 @@ func (u *User) Validate() error {
 		return fmt.Errorf("invalid email address")
 	}
 
-	if u.PasswordHash == "" || strings.Contains(u.PasswordHash, "_-") {
-		return fmt.Errorf("invalid password. symbols '_', '-' and '=' are not allowed")
+	if u.PasswordHash == "" {
+		return fmt.Errorf("invalid password")
 	}
 
-	if len(u.PasswordHash) < 8 || !strings.Contains(u.PasswordHash, "!@#$%^&*()+") {
+	for _, ch := range u.PasswordHash {
+		if !strings.ContainsRune(letters, ch) && !strings.ContainsRune(digits, ch) && !strings.ContainsRune(symbols, ch) {
+			return fmt.Errorf("invalid password. contains invalid character: '%c'", ch)
+		}
+	}
+
+	if len(u.PasswordHash) < 8 || !strings.ContainsAny(u.PasswordHash, symbols) || !strings.ContainsAny(u.PasswordHash, digits) {
 		return fmt.Errorf("password must be at least 8 characters long and contain at least one digit and special symbol")
 	}
 

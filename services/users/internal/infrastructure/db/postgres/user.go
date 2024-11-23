@@ -97,6 +97,7 @@ func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64) ([]*
 		From(usersTable).
 		Offset(offset).
 		Limit(limit).
+		OrderBy("name ASC").
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := selectBuilder.ToSql()

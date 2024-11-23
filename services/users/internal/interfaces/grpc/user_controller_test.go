@@ -476,8 +476,8 @@ func Test_CreateUser(t *testing.T) {
 			mockBehavior: func(s *mock_interfaces.MockUserService, cmd *command.CreateUserCommand) {
 				s.EXPECT().CreateUser(context.Background(), cmd).Return(&command.CreateUserCommandResult{
 					Result: &model.UserResult{
-						Id:         uuid.UUID{},
-						Username:   testUser_1.Name,
+						ID:         uuid.UUID{},
+						Name:       testUser_1.Name,
 						Email:      testUser_1.Email,
 						Roles:      testUser_1.Roles,
 						Status:     testUser_1.Status,
@@ -572,8 +572,8 @@ func Test_UpdateUser(t *testing.T) {
 			mockBehavior: func(s *mock_interfaces.MockUserService, cmd *command.UpdateUserCommand) {
 				s.EXPECT().UpdateUser(context.Background(), cmd).Return(&command.UpdateUserCommandResult{
 					Result: &model.UserResult{
-						Id:         uuid.UUID{},
-						Username:   testUser_1.Name,
+						ID:         uuid.UUID{},
+						Name:       testUser_1.Name,
 						Email:      "new@mail.ru",
 						Roles:      testUser_1.Roles,
 						Status:     testUser_1.Status,

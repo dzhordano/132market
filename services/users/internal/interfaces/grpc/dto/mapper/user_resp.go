@@ -9,8 +9,8 @@ import (
 
 func ToUserResponse(userResult *model.UserResult) *user_v1.User {
 	return &user_v1.User{
-		Id:         userResult.Id.String(),
-		Name:       userResult.Username,
+		Id:         userResult.ID.String(),
+		Name:       userResult.Name,
 		Email:      userResult.Email,
 		Roles:      userResult.Roles,
 		Status:     userResult.Status,
@@ -25,8 +25,8 @@ func ToUserListResponse(userResults []*model.UserResult) []*user_v1.User {
 
 	for _, userResult := range userResults {
 		userResponses = append(userResponses, &user_v1.User{
-			Id:         userResult.Id.String(),
-			Name:       userResult.Username,
+			Id:         userResult.ID.String(),
+			Name:       userResult.Name,
 			Email:      userResult.Email,
 			Roles:      userResult.Roles,
 			Status:     userResult.Status,

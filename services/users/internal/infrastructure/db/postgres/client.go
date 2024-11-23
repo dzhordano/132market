@@ -20,7 +20,7 @@ func NewPool(dsn string) *pgxpool.Pool {
 		panic(err)
 	}
 
-	if err := pool.Ping(context.Background()); err != nil {
+	if err = pool.Ping(context.Background()); err != nil {
 		panic(err)
 	}
 
