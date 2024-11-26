@@ -7,8 +7,8 @@ import (
 )
 
 type UserResult struct {
-	Id         uuid.UUID `json:"id"`
-	Username   string    `json:"username"`
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"username"`
 	Email      string    `json:"email"`
 	Roles      []string  `json:"roles"`
 	Status     string    `json:"status"`

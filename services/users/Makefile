@@ -21,8 +21,18 @@ generate-user-api-v1:
 	api/proto/user_v1/user.proto
 
 include .env
+
 init-db:
 	docker run --name=users-db -p ${POSTGRES_PORT}:5432 -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d postgres
+
+test.integration:
+	make init-test-db
+	go test -v ./tests/integration
+	docker stop users-test-db
+	docker rm users-test-db
+
+init-test-db:
+	docker run --name=users-test-db -p ${POSTGRES_TEST_PORT}:5432 -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} -d postgres
 
 goose-up:
 	goose -dir migrations postgres ${POSTGRES_DSN} up

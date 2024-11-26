@@ -53,7 +53,7 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 }
 
 func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.UpdateUserCommand) (*command.UpdateUserCommandResult, error) {
-	userId, err := uuid.Parse(userCommand.Id)
+	userId, err := uuid.Parse(userCommand.ID)
 	if err != nil {
 		return nil, errors.ToGRPCError(errors.ErrBadRequest)
 	}

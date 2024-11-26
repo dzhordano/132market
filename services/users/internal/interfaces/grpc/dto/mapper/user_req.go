@@ -15,7 +15,7 @@ func CreateUserRequestToCommand(req *user_v1.CreateUserRequest) *command.CreateU
 
 func UpdateUserRequestToCommand(req *user_v1.UpdateUserRequest) *command.UpdateUserCommand {
 	return &command.UpdateUserCommand{
-		Id:       req.GetId(),
+		ID:       req.GetId(),
 		Name:     req.Info.GetName(),
 		Email:    req.Info.GetEmail(),
 		Password: req.Info.GetPassword(),

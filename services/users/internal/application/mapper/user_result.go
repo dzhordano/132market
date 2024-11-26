@@ -11,8 +11,8 @@ func NewUserResultFromEntity(entity *entities.User) *model.UserResult {
 	}
 
 	return &model.UserResult{
-		Id:         entity.ID,
-		Username:   entity.Name,
+		ID:         entity.ID,
+		Name:       entity.Name,
 		Email:      entity.Email,
 		Roles:      entity.RolesToStrings(),
 		Status:     entity.Status.String(),
