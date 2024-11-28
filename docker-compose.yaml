@@ -1,0 +1,30 @@
+services:
+  users:
+    container_name: users-api
+    build: 
+      context: ./services/users
+      dockerfile: Dockerfile
+    ports:
+      - 55001:55001
+    depends_on:
+      - postgres
+    networks:
+      - users-network
+  postgres:
+    container_name: users-db  
+    image: postgres
+    hostname: users-db
+    env_file:
+      - ./services/users/.env
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - users-network
+
+volumes:
+  pgdata:
+
+networks:
+  users-network:

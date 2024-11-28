@@ -1,10 +1,14 @@
 package config
 
-import "github.com/joho/godotenv"
+import (
+	"log"
+
+	"github.com/joho/godotenv"
+)
 
 func init() {
 	err := godotenv.Load()
 	if err != nil {
-		panic(err)
+		log.Fatalf("Error loading .env file")
 	}
 }

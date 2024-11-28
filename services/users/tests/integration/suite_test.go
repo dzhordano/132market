@@ -89,9 +89,9 @@ func (s *BaseSuite) seedData() {
 
 func (s *BaseSuite) TestCreateUser() {
 	resp, err := s.svc.CreateUser(context.TODO(), &command.CreateUserCommand{
-		Name:     "u4",
-		Email:    "email4@mail.ru",
-		Password: "p@ssw0Rd",
+		Name:         "u4",
+		Email:        "email4@mail.ru",
+		PasswordHash: "p@ssw0Rd",
 	})
 	s.NoError(err)
 
@@ -116,10 +116,10 @@ func (s *BaseSuite) TestUpdateUser() {
 	oldUser1 := testUser1
 
 	updatedUser1, err := s.svc.UpdateUser(context.TODO(), &command.UpdateUserCommand{
-		ID:       testUser1.ID.String(),
-		Name:     "u1_NewName",
-		Email:    "email1@mail.ru",
-		Password: "p@ssw0Rd",
+		ID:           testUser1.ID.String(),
+		Name:         "u1_NewName",
+		Email:        "email1@mail.ru",
+		PasswordHash: "p@ssw0Rd",
 	})
 	s.NoError(err)
 

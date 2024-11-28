@@ -26,7 +26,7 @@ func NewUserService(logger logger.Logger, repo repository.UserRepository) interf
 }
 
 func (s *UserService) CreateUser(ctx context.Context, userCommand *command.CreateUserCommand) (*command.CreateUserCommandResult, error) {
-	newUser, err := entities.NewUser(userCommand.Name, userCommand.Email, userCommand.Password) // TODO There is no hashing for password yet
+	newUser, err := entities.NewUser(userCommand.Name, userCommand.Email, userCommand.PasswordHash)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 
 	user.UpdateName(userCommand.Name)
 	user.UpdateEmail(userCommand.Email)
-	user.UpdatePassword(userCommand.Password)
+	user.UpdatePassword(userCommand.PasswordHash)
 
 	if err := user.Validate(); err != nil {
 		return nil, errors.ToGRPCError(errors.ErrBadRequest)
@@ -134,8 +134,8 @@ func (s *UserService) FindUserById(ctx context.Context, id string) (*query.UserQ
 	return &result, nil
 }
 
-func (s *UserService) FindUserByCredentials(ctx context.Context, email, password string) (*query.UserQueryResult, error) {
-	respUser, err := s.repo.FindByCredentials(ctx, email, password) // TODO Hash password before passing
+func (s *UserService) FindUserByCredentials(ctx context.Context, email, passwordhash string) (*query.UserQueryResult, error) {
+	respUser, err := s.repo.FindByCredentials(ctx, email, passwordhash)
 	if err != nil {
 		return nil, err
 	}

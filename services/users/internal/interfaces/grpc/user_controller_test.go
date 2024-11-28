@@ -469,9 +469,9 @@ func Test_CreateUser(t *testing.T) {
 				},
 			},
 			inpCmd: &command.CreateUserCommand{
-				Name:     testUser_1.Name,
-				Email:    testUser_1.Email,
-				Password: "t3stP@ssw0rd",
+				Name:         testUser_1.Name,
+				Email:        testUser_1.Email,
+				PasswordHash: "t3stP@ssw0rd",
 			},
 			mockBehavior: func(s *mock_interfaces.MockUserService, cmd *command.CreateUserCommand) {
 				s.EXPECT().CreateUser(context.Background(), cmd).Return(&command.CreateUserCommandResult{
@@ -502,9 +502,9 @@ func Test_CreateUser(t *testing.T) {
 				},
 			},
 			inpCmd: &command.CreateUserCommand{
-				Name:     testUser_1.Name,
-				Email:    testUser_1.Email,
-				Password: "t3stP@ssw0rd",
+				Name:         testUser_1.Name,
+				Email:        testUser_1.Email,
+				PasswordHash: "t3stP@ssw0rd",
 			},
 			mockBehavior: func(s *mock_interfaces.MockUserService, cmd *command.CreateUserCommand) {
 				s.EXPECT().CreateUser(context.Background(), cmd).Return(nil, errors.New("internal failure"))
