@@ -10,7 +10,7 @@ services:
       - postgres
     networks:
       - users-network
-  users-postgres:
+  users-pg:
     container_name: users-db  
     image: postgres
     hostname: users-db
