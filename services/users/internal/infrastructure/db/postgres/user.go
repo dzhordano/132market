@@ -2,15 +2,16 @@ package postgres
 
 import (
 	"context"
-	"dzhordano/132market/services/users/internal/domain/entities"
-	"dzhordano/132market/services/users/internal/domain/repository"
 	"errors"
 	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/dzhordano/132market/services/users/internal/domain/entities"
+	"github.com/dzhordano/132market/services/users/internal/domain/repository"
 	"github.com/google/uuid"
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -57,6 +58,33 @@ func (r *UserRepository) FindById(ctx context.Context, id uuid.UUID) (*entities.
 	return &user, nil
 }
 
+func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*entities.User, error) {
+	const op = "repository.user.FindByEmail"
+
+	selectBuilder := sq.Select("*").
+		From(usersTable).
+		Where(sq.Eq{"email": email}).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	row := r.db.QueryRow(ctx, query, args...)
+	var user entities.User
+
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
+		}
+
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return &user, nil
+}
+
 func (r *UserRepository) FindByCredentials(ctx context.Context, email, password string) (*entities.User, error) {
 	const op = "repository.user.FindByCredentials"
 
@@ -77,11 +105,8 @@ func (r *UserRepository) FindByCredentials(ctx context.Context, email, password 
 
 	var user entities.User
 	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == pgerrcode.NoDataFound {
-				return nil, fmt.Errorf("%s: %w", op, ErrNotFound) // TODO Сделать здесь константу
-			}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
 		}
 
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -90,7 +115,7 @@ func (r *UserRepository) FindByCredentials(ctx context.Context, email, password 
 	return &user, nil
 }
 
-func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64) ([]*entities.User, error) {
+func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64, filters map[string]string) ([]*entities.User, error) {
 	const op = "repository.user.FindAll"
 
 	selectBuilder := sq.Select("*").
@@ -99,6 +124,10 @@ func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64) ([]*
 		Limit(limit).
 		OrderBy("name ASC").
 		PlaceholderFormat(sq.Dollar)
+
+	for key, value := range filters {
+		selectBuilder = selectBuilder.Where(sq.Eq{key: value})
+	}
 
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
@@ -185,12 +214,13 @@ func (r *UserRepository) Update(ctx context.Context, user *entities.User) (*enti
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
-			if pgErr.Code == pgerrcode.NoDataFound {
-				return nil, fmt.Errorf("%s: %w", op, ErrNotFound) // TODO Сделать константой
-			}
 			if pgErr.Code == pgerrcode.UniqueViolation {
 				return nil, fmt.Errorf("%s: %w", op, ErrAlreadyExists) // TODO Сделать константой + подумать правильная ли ошибка
 			}
+		}
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
 		}
 
 		return nil, fmt.Errorf("%s: %w", op, err)
@@ -199,14 +229,12 @@ func (r *UserRepository) Update(ctx context.Context, user *entities.User) (*enti
 	return r.FindById(ctx, user.ID)
 }
 
-// FIXME у меня тут time.Now(), думаю это плохо?
-func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	const op = "repository.user.Delete"
+func (r *UserRepository) UpdateLastSeen(ctx context.Context, id uuid.UUID, lastSeen time.Time) error {
+	const op = "repository.user.UpdateLastSeen"
 
 	updateBuilder := sq.Update(usersTable).
+		Set("last_seen_at", lastSeen).
 		Where(sq.Eq{"id": id}).
-		Set("state", "deleted").
-		Set("deleted_at", time.Now()).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := updateBuilder.ToSql()
@@ -216,11 +244,60 @@ func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 
 	_, err = r.db.Exec(ctx, query, args...)
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			if pgErr.Code == pgerrcode.NoDataFound {
-				return fmt.Errorf("%s: %w", op, ErrNotFound)
-			}
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("%s: %w", op, ErrNotFound)
+		}
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+func (r *UserRepository) UpdateState(ctx context.Context, id uuid.UUID, state string) error {
+	const op = "repository.user.UpdateStatus"
+
+	updateBuilder := sq.Update(usersTable).
+		Set("state", state).
+		Where(sq.Eq{"id": id}).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	_, err = r.db.Exec(ctx, query, args...)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("%s: %w", op, ErrNotFound)
+		}
+
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	return nil
+}
+
+// FIXME у меня тут time.Now(), думаю это плохо?
+func (r *UserRepository) Delete(ctx context.Context, id uuid.UUID, deletedAt time.Time) error {
+	const op = "repository.user.Delete"
+
+	updateBuilder := sq.Update(usersTable).
+		Where(sq.Eq{"id": id}).
+		Set("state", "deleted").
+		Set("deleted_at", deletedAt).
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return fmt.Errorf("%s: %w", op, err)
+	}
+
+	_, err = r.db.Exec(ctx, query, args...)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("%s: %w", op, ErrNotFound)
 		}
 
 		return fmt.Errorf("%s: %w", op, err)

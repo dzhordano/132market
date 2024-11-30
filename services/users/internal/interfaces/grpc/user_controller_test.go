@@ -2,17 +2,17 @@ package grpc
 
 import (
 	"context"
-	"dzhordano/132market/services/users/internal/application/command"
-	"dzhordano/132market/services/users/internal/application/mapper"
-	"dzhordano/132market/services/users/internal/application/model"
-	"dzhordano/132market/services/users/internal/application/query"
-	"dzhordano/132market/services/users/internal/domain/entities"
-	mock_interfaces "dzhordano/132market/services/users/internal/interfaces/grpc/mocks"
-	"dzhordano/132market/services/users/pkg/pb/user_v1"
 	"errors"
 	"testing"
 	"time"
 
+	"github.com/dzhordano/132market/services/users/internal/application/command"
+	"github.com/dzhordano/132market/services/users/internal/application/mapper"
+	"github.com/dzhordano/132market/services/users/internal/application/model"
+	"github.com/dzhordano/132market/services/users/internal/application/query"
+	"github.com/dzhordano/132market/services/users/internal/domain/entities"
+	mock_interfaces "github.com/dzhordano/132market/services/users/internal/interfaces/grpc/mocks"
+	"github.com/dzhordano/132market/services/users/pkg/pb/user_v1"
 	"github.com/go-playground/assert/v2"
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
@@ -205,7 +205,7 @@ func Test_FindUserByCredentials(t *testing.T) {
 	}
 }
 func Test_FindAllUsers(t *testing.T) {
-	type mockBehavior func(s *mock_interfaces.MockUserService, offset, limit uint64)
+	type mockBehavior func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string)
 
 	testUser_1 := &entities.User{
 		ID:         uuid.UUID{},
@@ -246,72 +246,66 @@ func Test_FindAllUsers(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		inpReq         *user_v1.FindAllUsersRequest
+		inpReq         *user_v1.ListUsersRequest
 		mockBehavior   mockBehavior
-		expectedResult *user_v1.FindAllUsersResponse
+		expectedResult *user_v1.ListUsersResponse
 		expectedErr    error
 	}{
-		{
-			name: "OK",
-			inpReq: &user_v1.FindAllUsersRequest{
-				Offset: 0,
-				Limit:  10,
-			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64) {
-				s.EXPECT().FindAllUsers(context.Background(), offset, limit).Return(&query.UserQueryListResult{
-					Result: mapper.NewUserResultListFromEntities([]*entities.User{
-						testUser_1, testUser_2, testUser_3})},
-					nil)
-			},
-			expectedResult: &user_v1.FindAllUsersResponse{
-				Users: []*user_v1.User{
-					{
-						Id:         uuid.UUID{}.String(),
-						Name:       "test1",
-						Email:      "test1@mail.ru",
-						Roles:      []string{entities.RoleUser.String()},
-						Status:     "offline",
-						State:      "active",
-						CreatedAt:  timestamppb.New(time.Now()),
-						LastSeenAt: timestamppb.New(time.Now()),
-					},
-					{
-						Id:         uuid.UUID{}.String(),
-						Name:       "test2",
-						Email:      "test2@mail.ru",
-						Roles:      []string{entities.RoleUser.String()},
-						Status:     "offline",
-						State:      "active",
-						CreatedAt:  timestamppb.New(time.Now()),
-						LastSeenAt: timestamppb.New(time.Now()),
-					},
-					{
-						Id:         uuid.UUID{}.String(),
-						Name:       "test3",
-						Email:      "test3@mail.ru",
-						Roles:      []string{entities.RoleUser.String()},
-						Status:     "offline",
-						State:      "active",
-						CreatedAt:  timestamppb.New(time.Now()),
-						LastSeenAt: timestamppb.New(time.Now()),
-					},
+		{name: "OK", inpReq: &user_v1.ListUsersRequest{
+			Offset: 0,
+			Limit:  10,
+		}, mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
+			s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(&query.UserQueryListResult{
+				Result: mapper.NewUserResultListFromEntities([]*entities.User{
+					testUser_1, testUser_2, testUser_3})},
+				nil)
+		}, expectedResult: &user_v1.ListUsersResponse{
+			Users: []*user_v1.User{
+				{
+					Id:         uuid.UUID{}.String(),
+					Name:       "test1",
+					Email:      "test1@mail.ru",
+					Roles:      []string{entities.RoleUser.String()},
+					Status:     "offline",
+					State:      "active",
+					CreatedAt:  timestamppb.New(time.Now()),
+					LastSeenAt: timestamppb.New(time.Now()),
+				},
+				{
+					Id:         uuid.UUID{}.String(),
+					Name:       "test2",
+					Email:      "test2@mail.ru",
+					Roles:      []string{entities.RoleUser.String()},
+					Status:     "offline",
+					State:      "active",
+					CreatedAt:  timestamppb.New(time.Now()),
+					LastSeenAt: timestamppb.New(time.Now()),
+				},
+				{
+					Id:         uuid.UUID{}.String(),
+					Name:       "test3",
+					Email:      "test3@mail.ru",
+					Roles:      []string{entities.RoleUser.String()},
+					Status:     "offline",
+					State:      "active",
+					CreatedAt:  timestamppb.New(time.Now()),
+					LastSeenAt: timestamppb.New(time.Now()),
 				},
 			},
-			expectedErr: nil,
-		},
+		}, expectedErr: nil},
 		{
 			name: "Retrieve with limit 2",
-			inpReq: &user_v1.FindAllUsersRequest{
+			inpReq: &user_v1.ListUsersRequest{
 				Offset: 0,
 				Limit:  2,
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64) {
-				s.EXPECT().FindAllUsers(context.Background(), offset, limit).Return(&query.UserQueryListResult{
+			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
+				s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(&query.UserQueryListResult{
 					Result: mapper.NewUserResultListFromEntities([]*entities.User{
 						testUser_1, testUser_2})},
 					nil)
 			},
-			expectedResult: &user_v1.FindAllUsersResponse{
+			expectedResult: &user_v1.ListUsersResponse{
 				Users: []*user_v1.User{
 					{
 						Id:         uuid.UUID{}.String(),
@@ -339,17 +333,17 @@ func Test_FindAllUsers(t *testing.T) {
 		},
 		{
 			name: "Retrieve with offset 2",
-			inpReq: &user_v1.FindAllUsersRequest{
+			inpReq: &user_v1.ListUsersRequest{
 				Offset: 2,
 				Limit:  10,
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64) {
-				s.EXPECT().FindAllUsers(context.Background(), offset, limit).Return(&query.UserQueryListResult{
+			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
+				s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(&query.UserQueryListResult{
 					Result: mapper.NewUserResultListFromEntities([]*entities.User{
 						testUser_3})},
 					nil)
 			},
-			expectedResult: &user_v1.FindAllUsersResponse{Users: []*user_v1.User{
+			expectedResult: &user_v1.ListUsersResponse{Users: []*user_v1.User{
 				{
 					Id:         uuid.UUID{}.String(),
 					Name:       "test3",
@@ -366,17 +360,17 @@ func Test_FindAllUsers(t *testing.T) {
 		},
 		{
 			name: "Retrieve with limit 2 and offset 2",
-			inpReq: &user_v1.FindAllUsersRequest{
+			inpReq: &user_v1.ListUsersRequest{
 				Offset: 2,
 				Limit:  2,
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64) {
-				s.EXPECT().FindAllUsers(context.Background(), offset, limit).Return(&query.UserQueryListResult{
+			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
+				s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(&query.UserQueryListResult{
 					Result: mapper.NewUserResultListFromEntities([]*entities.User{
 						testUser_3})},
 					nil)
 			},
-			expectedResult: &user_v1.FindAllUsersResponse{
+			expectedResult: &user_v1.ListUsersResponse{
 				Users: []*user_v1.User{
 					{
 						Id:         uuid.UUID{}.String(),
@@ -393,26 +387,29 @@ func Test_FindAllUsers(t *testing.T) {
 			expectedErr: nil},
 		{
 			name: "Internal failure",
-			inpReq: &user_v1.FindAllUsersRequest{
+			inpReq: &user_v1.ListUsersRequest{
 				Offset: 2,
 				Limit:  2,
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64) {
-				s.EXPECT().FindAllUsers(context.Background(), offset, limit).Return(nil, errors.New("internal failure"))
+			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
+				s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(nil, errors.New("internal failure"))
 			},
 			expectedResult: nil,
 			expectedErr:    errors.New("internal failure"),
 		},
 		{
 			name: "Not found",
-			inpReq: &user_v1.FindAllUsersRequest{
+			inpReq: &user_v1.ListUsersRequest{
 				Offset: 3,
 				Limit:  10,
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64) {
-				s.EXPECT().FindAllUsers(context.Background(), offset, limit).Return(nil, errors.New("not found"))
+			mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
+				s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(nil, errors.New("not found"))
 			},
 			expectedErr: errors.New("not found"),
+		},
+		{
+			// FIXME ADD TEST TO TEST FILTERS
 		},
 	}
 
@@ -422,10 +419,10 @@ func Test_FindAllUsers(t *testing.T) {
 			defer c.Finish()
 
 			s := mock_interfaces.NewMockUserService(c)
-			test.mockBehavior(s, test.inpReq.Offset, test.inpReq.Limit)
+			test.mockBehavior(s, test.inpReq.Offset, test.inpReq.Limit, test.inpReq.Filters)
 
 			ctrl := NewUserController(s)
-			res, err := ctrl.FindAllUsers(context.Background(), test.inpReq)
+			res, err := ctrl.ListUsers(context.Background(), test.inpReq)
 
 			if test.expectedErr != nil && test.expectedErr.Error() != err.Error() {
 				t.Errorf("expected error %v got %v", test.expectedErr, err)

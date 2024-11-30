@@ -1,7 +1,7 @@
 package query
 
 import (
-	"dzhordano/132market/services/users/internal/application/model"
+	"github.com/dzhordano/132market/services/users/internal/application/model"
 )
 
 type UserQueryResult struct {
@@ -10,4 +10,5 @@ type UserQueryResult struct {
 
 type UserQueryListResult struct {
 	Result []*model.UserResult
+	Count  uint64
 }

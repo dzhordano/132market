@@ -12,8 +12,14 @@ service UserServiceV1 {
     rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse);
     rpc FindUserById(FindUserByIdRequest) returns (FindUserByIdResponse);
     rpc FindUserByCredentials(FindUserByCredentialsRequest) returns (FindUserByCredentialsResponse);
-    rpc FindAllUsers(FindAllUsersRequest) returns (FindAllUsersResponse);
+    rpc ListUsers(ListUsersRequest) returns (ListUsersResponse);
     rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
+
+    // Methods offered by ai, valid? I guess useful...
+    rpc SearchUsers(SearchUsersRequest) returns (SearchUsersResponse);
+    rpc SetUserState(SetUserStateRequest) returns (google.protobuf.Empty);
+    rpc UpdateLastSeen(UpdateLastSeenRequest) returns (google.protobuf.Empty);
+    rpc CheckUserExists(CheckUserExistsRequest) returns (CheckUserExistsResponse);
 }
 
 message User {
@@ -68,15 +74,45 @@ message FindUserByCredentialsResponse {
     User user = 1;
 }
 
-message FindAllUsersRequest {
+message ListUsersRequest {
     uint64 offset = 1;
     uint64 limit = 2;
+    map<string, string> filters = 3;
 }
 
-message FindAllUsersResponse {
+message ListUsersResponse {
     repeated User users = 1;
+    uint64 total_count = 2;
 }
 
 message DeleteUserRequest {
     string id = 1;
+}
+
+// TODO
+message SearchUsersRequest {
+    string query = 1;
+    uint64 offset = 2;
+    uint64 limit = 3;
+}
+
+message SearchUsersResponse {
+    repeated User users = 1;
+}
+
+message SetUserStateRequest {
+    string id = 1;
+    string state = 2;
+}
+
+message UpdateLastSeenRequest {
+    string id = 1;
+}
+
+message CheckUserExistsRequest {
+    string email = 1;
+}
+
+message CheckUserExistsResponse {
+    bool exists = 1;
 }

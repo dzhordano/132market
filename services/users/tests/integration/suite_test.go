@@ -2,18 +2,19 @@ package integration
 
 import (
 	"context"
-	"dzhordano/132market/services/users/internal/application/command"
-	"dzhordano/132market/services/users/internal/application/interfaces"
-	"dzhordano/132market/services/users/internal/application/services"
-	"dzhordano/132market/services/users/internal/domain/entities"
-	"dzhordano/132market/services/users/internal/domain/repository"
-	"dzhordano/132market/services/users/internal/infrastructure/db/postgres"
-	"dzhordano/132market/services/users/pkg/migration/goose"
+	"errors"
 	"log"
 	"log/slog"
 	"os"
 	"testing"
 
+	"github.com/dzhordano/132market/services/users/internal/application/command"
+	"github.com/dzhordano/132market/services/users/internal/application/interfaces"
+	"github.com/dzhordano/132market/services/users/internal/application/services"
+	"github.com/dzhordano/132market/services/users/internal/domain/entities"
+	"github.com/dzhordano/132market/services/users/internal/domain/repository"
+	"github.com/dzhordano/132market/services/users/internal/infrastructure/db/postgres"
+	"github.com/dzhordano/132market/services/users/pkg/migration/goose"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
@@ -140,8 +141,8 @@ func (s *BaseSuite) TestFindUserById() {
 	s.Equal(testUser1.LastSeenAt, resp.Result.LastSeenAt)
 }
 
-func (s *BaseSuite) TestFindAllUsersNoFilter() {
-	users, err := s.svc.FindAllUsers(context.TODO(), 0, 3)
+func (s *BaseSuite) TestListUsersNoFilter() {
+	users, err := s.svc.ListUsers(context.TODO(), 0, 3, nil)
 	s.NoError(err)
 
 	s.Equal(3, len(users.Result))
@@ -179,8 +180,8 @@ func (s *BaseSuite) TestFindAllUsersNoFilter() {
 	s.Equal(testUser3.Status.String(), users.Result[2].Status)
 }
 
-func (s *BaseSuite) TestFindAllUsersOffset2() {
-	users, err := s.svc.FindAllUsers(context.TODO(), 2, 1)
+func (s *BaseSuite) TestListUsersOffset2() {
+	users, err := s.svc.ListUsers(context.TODO(), 2, 1, nil)
 	s.NoError(err)
 
 	s.Equal(1, len(users.Result))
@@ -200,6 +201,10 @@ func (s *BaseSuite) TestFindAllUsersOffset2() {
 	s.Equal(testUser3.Roles[0].String(), users.Result[0].Roles[0])
 
 	s.Equal(testUser3.Status.String(), users.Result[0].Status)
+}
+
+func (s *BaseSuite) TestListUsersWithFilter() {
+	s.Error(errors.New("not implemented"))
 }
 
 func (s *BaseSuite) TestFindUserByCredentials() {

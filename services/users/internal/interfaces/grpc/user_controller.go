@@ -2,10 +2,12 @@ package grpc
 
 import (
 	"context"
-	"dzhordano/132market/services/users/internal/application/interfaces"
-	"dzhordano/132market/services/users/internal/interfaces/grpc/dto/mapper"
-	"dzhordano/132market/services/users/pkg/pb/user_v1"
 
+	"github.com/dzhordano/132market/services/users/internal/application/interfaces"
+	"github.com/dzhordano/132market/services/users/internal/interfaces/grpc/dto/mapper"
+	"github.com/dzhordano/132market/services/users/pkg/pb/user_v1"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -75,13 +77,45 @@ func (u *UserController) FindUserByCredentials(ctx context.Context, request *use
 	return &user_v1.FindUserByCredentialsResponse{User: response}, nil
 }
 
-func (u *UserController) FindAllUsers(ctx context.Context, request *user_v1.FindAllUsersRequest) (*user_v1.FindAllUsersResponse, error) {
-	queryResp, err := u.userService.FindAllUsers(ctx, request.GetOffset(), request.GetLimit())
+func (u *UserController) ListUsers(ctx context.Context, request *user_v1.ListUsersRequest) (*user_v1.ListUsersResponse, error) {
+	queryResp, err := u.userService.ListUsers(ctx, request.GetOffset(), request.GetLimit(), request.GetFilters())
 	if err != nil {
 		return nil, err
 	}
 
 	response := mapper.ToUserListResponse(queryResp.Result)
 
-	return &user_v1.FindAllUsersResponse{Users: response}, nil
+	return &user_v1.ListUsersResponse{Users: response}, nil
+}
+
+// FIXME последним сделать.
+func (u *UserController) SearchUsers(ctx context.Context, request *user_v1.SearchUsersRequest) (*user_v1.SearchUsersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "not implemented. waiting for searching service implementation")
+}
+
+func (u *UserController) SetUserState(ctx context.Context, request *user_v1.SetUserStateRequest) (*emptypb.Empty, error) {
+	err := u.userService.SetUserState(ctx, request.GetId(), request.GetState())
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (u *UserController) UpdateLastSeen(ctx context.Context, request *user_v1.UpdateLastSeenRequest) (*emptypb.Empty, error) {
+	err := u.userService.UpdateLastSeen(ctx, request.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (u *UserController) CheckUserExists(ctx context.Context, request *user_v1.CheckUserExistsRequest) (*user_v1.CheckUserExistsResponse, error) {
+	exists, err := u.userService.CheckUserExists(ctx, request.GetEmail())
+	if err != nil {
+		return nil, err
+	}
+
+	return &user_v1.CheckUserExistsResponse{Exists: exists}, nil
 }

@@ -1,27 +1,26 @@
 package main
 
 import (
-	"dzhordano/132market/services/users/config"
-	"dzhordano/132market/services/users/internal/application/services"
-	"dzhordano/132market/services/users/internal/infrastructure/db/postgres"
-	"dzhordano/132market/services/users/internal/infrastructure/grpc"
-	"dzhordano/132market/services/users/pkg/logger"
 	"log/slog"
 	"os"
+
+	"github.com/dzhordano/132market/services/users/config"
+	"github.com/dzhordano/132market/services/users/internal/application/services"
+	"github.com/dzhordano/132market/services/users/internal/infrastructure/db/postgres"
+	"github.com/dzhordano/132market/services/users/internal/infrastructure/grpc"
+	"github.com/dzhordano/132market/services/users/pkg/logger"
 )
 
 // TODO
 // - (-)Добавить фильтр поиска (тип только активные, заблокированные и т.д.) [admin]
-// - (+)Конфигурация + (-)graceful shutdown
+// - (-)graceful shutdown
 // - (+)Обернуть ошибки + намутить хороший вывод для gRPC. (-)Не забыть про возврат множественных ошибок
 // (например при валидации: возврат перечисления конкретных полей) {errors.Join(args ...error) error юзать}
 // - Разрулить то, как я буду эти же ошибки потом выплевывать на Gateway {буду преобразовывать просто на самом gateway}
 // - (-)Обертка над БД
 // - (-)Логирование ELK
 // - (-)DI-контейнер
-// - (+)Unit + (+)Integration + (-)Нагрузочные тесты
-// - (-)Собрать как докер контейнер
-// - (-)Собрать пайплайн
+// - (-)Нагрузочные тесты
 // - (-)Рефакторинг кода
 // - (-)Разобраться с CQRS либо убрать вообще разделение
 // TODO После поднятия SSO сервиса

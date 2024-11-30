@@ -2,8 +2,9 @@ package postgres
 
 import (
 	"context"
-	"dzhordano/132market/services/users/pkg/migration/goose"
 	"errors"
+
+	"github.com/dzhordano/132market/services/users/pkg/migration/goose"
 
 	"log"
 

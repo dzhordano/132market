@@ -1,4 +1,4 @@
-module dzhordano/132market/services/users
+module github.com/dzhordano/132market/services/users
 
 go 1.23.0
 

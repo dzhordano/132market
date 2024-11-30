@@ -11,10 +11,10 @@ package mock_interfaces
 
 import (
 	context "context"
-	command "dzhordano/132market/services/users/internal/application/command"
-	query "dzhordano/132market/services/users/internal/application/query"
 	reflect "reflect"
 
+	command "github.com/dzhordano/132market/services/users/internal/application/command"
+	query "github.com/dzhordano/132market/services/users/internal/application/query"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -40,6 +40,21 @@ func NewMockUserService(ctrl *gomock.Controller) *MockUserService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 	return m.recorder
+}
+
+// CheckUserExists mocks base method.
+func (m *MockUserService) CheckUserExists(ctx context.Context, email string) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CheckUserExists", ctx, email)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CheckUserExists indicates an expected call of CheckUserExists.
+func (mr *MockUserServiceMockRecorder) CheckUserExists(ctx, email any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUserExists", reflect.TypeOf((*MockUserService)(nil).CheckUserExists), ctx, email)
 }
 
 // CreateUser mocks base method.
@@ -71,21 +86,6 @@ func (mr *MockUserServiceMockRecorder) DeleteUser(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockUserService)(nil).DeleteUser), ctx, id)
 }
 
-// FindAllUsers mocks base method.
-func (m *MockUserService) FindAllUsers(ctx context.Context, offset, limit uint64) (*query.UserQueryListResult, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAllUsers", ctx, offset, limit)
-	ret0, _ := ret[0].(*query.UserQueryListResult)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// FindAllUsers indicates an expected call of FindAllUsers.
-func (mr *MockUserServiceMockRecorder) FindAllUsers(ctx, offset, limit any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAllUsers", reflect.TypeOf((*MockUserService)(nil).FindAllUsers), ctx, offset, limit)
-}
-
 // FindUserByCredentials mocks base method.
 func (m *MockUserService) FindUserByCredentials(ctx context.Context, email, password string) (*query.UserQueryResult, error) {
 	m.ctrl.T.Helper()
@@ -114,6 +114,49 @@ func (m *MockUserService) FindUserById(ctx context.Context, id string) (*query.U
 func (mr *MockUserServiceMockRecorder) FindUserById(ctx, id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUserById", reflect.TypeOf((*MockUserService)(nil).FindUserById), ctx, id)
+}
+
+// ListUsers mocks base method.
+func (m *MockUserService) ListUsers(ctx context.Context, offset, limit uint64, filters map[string]string) (*query.UserQueryListResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListUsers", ctx, offset, limit, filters)
+	ret0, _ := ret[0].(*query.UserQueryListResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListUsers indicates an expected call of ListUsers.
+func (mr *MockUserServiceMockRecorder) ListUsers(ctx, offset, limit, filters any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsers", reflect.TypeOf((*MockUserService)(nil).ListUsers), ctx, offset, limit, filters)
+}
+
+// SetUserState mocks base method.
+func (m *MockUserService) SetUserState(ctx context.Context, id, state string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetUserState", ctx, id, state)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetUserState indicates an expected call of SetUserState.
+func (mr *MockUserServiceMockRecorder) SetUserState(ctx, id, state any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetUserState", reflect.TypeOf((*MockUserService)(nil).SetUserState), ctx, id, state)
+}
+
+// UpdateLastSeen mocks base method.
+func (m *MockUserService) UpdateLastSeen(ctx context.Context, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateLastSeen", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateLastSeen indicates an expected call of UpdateLastSeen.
+func (mr *MockUserServiceMockRecorder) UpdateLastSeen(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLastSeen", reflect.TypeOf((*MockUserService)(nil).UpdateLastSeen), ctx, id)
 }
 
 // UpdateUser mocks base method.

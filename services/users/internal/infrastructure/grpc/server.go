@@ -1,12 +1,13 @@
 package grpc
 
 import (
-	desc "dzhordano/132market/services/users/pkg/pb/user_v1"
 	"log"
 	"net"
 
-	"dzhordano/132market/services/users/internal/application/interfaces"
-	ctrl "dzhordano/132market/services/users/internal/interfaces/grpc"
+	desc "github.com/dzhordano/132market/services/users/pkg/pb/user_v1"
+
+	"github.com/dzhordano/132market/services/users/internal/application/interfaces"
+	ctrl "github.com/dzhordano/132market/services/users/internal/interfaces/grpc"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

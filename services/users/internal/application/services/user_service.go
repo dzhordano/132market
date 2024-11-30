@@ -2,17 +2,29 @@ package services
 
 import (
 	"context"
-	"dzhordano/132market/services/users/internal/application/command"
-	"dzhordano/132market/services/users/internal/application/errors"
-	"dzhordano/132market/services/users/internal/application/interfaces"
-	"dzhordano/132market/services/users/internal/application/mapper"
-	"dzhordano/132market/services/users/internal/application/query"
-	"dzhordano/132market/services/users/internal/domain/entities"
-	"dzhordano/132market/services/users/internal/domain/repository"
-	"dzhordano/132market/services/users/pkg/logger"
+	"errors"
 	"log/slog"
+	"time"
+
+	"github.com/dzhordano/132market/services/users/internal/application/command"
+	svcErrors "github.com/dzhordano/132market/services/users/internal/application/errors"
+	"github.com/dzhordano/132market/services/users/internal/application/interfaces"
+	"github.com/dzhordano/132market/services/users/internal/application/mapper"
+	"github.com/dzhordano/132market/services/users/internal/application/query"
+	"github.com/dzhordano/132market/services/users/internal/domain/entities"
+	"github.com/dzhordano/132market/services/users/internal/domain/repository"
+	"github.com/dzhordano/132market/services/users/internal/infrastructure/db/postgres"
+	"github.com/dzhordano/132market/services/users/pkg/logger"
 
 	"github.com/google/uuid"
+)
+
+const (
+	DefaultOffset uint64 = 0
+	DefaultLimit  uint64 = 10
+
+	MaxOffset uint64 = 100
+	MaxLimit  uint64 = 100
 )
 
 type UserService struct {
@@ -32,7 +44,7 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 	}
 
 	if err := newUser.Validate(); err != nil {
-		return nil, errors.ToGRPCError(errors.ErrBadRequest)
+		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
 
 	s.logger.Debug("User created and validated:", slog.Any("user", newUser))
@@ -40,7 +52,7 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 	respUser, err := s.repo.Save(ctx, newUser)
 	if err != nil {
 		s.logger.Debug("Returning error: ", err)
-		return nil, errors.ToGRPCError(err)
+		return nil, svcErrors.ToGRPCError(err)
 	}
 
 	s.logger.Debug("User saved:", slog.Any("user", respUser))
@@ -55,7 +67,7 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.UpdateUserCommand) (*command.UpdateUserCommandResult, error) {
 	userId, err := uuid.Parse(userCommand.ID)
 	if err != nil {
-		return nil, errors.ToGRPCError(errors.ErrBadRequest)
+		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
 
 	user, err := s.repo.FindById(ctx, userId)
@@ -70,14 +82,14 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 	user.UpdatePassword(userCommand.PasswordHash)
 
 	if err := user.Validate(); err != nil {
-		return nil, errors.ToGRPCError(errors.ErrBadRequest)
+		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
 
 	s.logger.Debug("User updated and validated:", slog.Any("user", user))
 
 	respUser, err := s.repo.Update(ctx, user)
 	if err != nil {
-		return nil, errors.ToGRPCError(errors.ErrBadRequest)
+		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
 
 	s.logger.Debug("User updated:", slog.Any("user", respUser))
@@ -93,19 +105,10 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 func (s *UserService) DeleteUser(ctx context.Context, id string) error {
 	userId, err := uuid.Parse(id)
 	if err != nil {
-		return errors.ToGRPCError(errors.ErrBadRequest)
+		return svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
 
-	user, err := s.repo.FindById(ctx, userId)
-	if err != nil {
-		return err
-	}
-
-	if err := user.DeleteUser(); err != nil {
-		return err
-	}
-
-	if _, err := s.repo.Update(ctx, user); err != nil {
+	if err := s.repo.Delete(ctx, userId, time.Now()); err != nil {
 		return err
 	}
 
@@ -117,7 +120,7 @@ func (s *UserService) DeleteUser(ctx context.Context, id string) error {
 func (s *UserService) FindUserById(ctx context.Context, id string) (*query.UserQueryResult, error) {
 	userId, err := uuid.Parse(id)
 	if err != nil {
-		return nil, errors.ToGRPCError(errors.ErrBadRequest)
+		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
 
 	respUser, err := s.repo.FindById(ctx, userId)
@@ -149,17 +152,82 @@ func (s *UserService) FindUserByCredentials(ctx context.Context, email, password
 	return &result, nil
 }
 
-func (s *UserService) FindAllUsers(ctx context.Context, offset, limit uint64) (*query.UserQueryListResult, error) {
-	respUsers, err := s.repo.FindAll(ctx, offset, limit)
-	if err != nil {
-		return nil, errors.ToGRPCError(err)
+func (s *UserService) ListUsers(ctx context.Context, offset, limit uint64, filters map[string]string) (*query.UserQueryListResult, error) {
+	if offset > MaxOffset {
+		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
-	// FIXME Очередное маг. число, изменить скок выводить
-	s.logger.Debug("Users found:", slog.Any("users", respUsers[:min(int(limit), len(respUsers), 5)]))
+
+	if limit > MaxLimit {
+		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
+	}
+
+	if limit == 0 {
+		limit = DefaultLimit
+	}
+
+	if offset == 0 {
+		offset = DefaultOffset
+	}
+
+	respUsers, err := s.repo.FindAll(ctx, offset, limit, filters)
+	if err != nil {
+		return nil, svcErrors.ToGRPCError(err)
+	}
+
+	s.logger.Debug("Users found:", slog.Any("users", respUsers[:min(int(limit), len(respUsers))]))
 
 	result := query.UserQueryListResult{
 		Result: mapper.NewUserResultListFromEntities(respUsers),
+		Count:  uint64(len(respUsers)),
 	}
 
 	return &result, nil
+}
+
+func (s *UserService) CheckUserExists(ctx context.Context, email string) (bool, error) {
+	_, err := s.repo.FindByEmail(ctx, email)
+	if err != nil {
+		if errors.Is(err, postgres.ErrNotFound) {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (s *UserService) UpdateLastSeen(ctx context.Context, id string) error {
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		return svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
+	}
+
+	if err := s.repo.UpdateLastSeen(ctx, userId, time.Now()); err != nil {
+		return err
+	}
+
+	s.logger.Debug("User last seen updated:", slog.Any("id", id))
+
+	return nil
+}
+
+func (s *UserService) SetUserState(ctx context.Context, id string, state string) error {
+	userId, err := uuid.Parse(id)
+	if err != nil {
+		return svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
+	}
+
+	domainState := entities.State(state)
+	if !domainState.Validate() {
+		return svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
+	}
+
+	if err := s.repo.UpdateState(ctx, userId, state); err != nil {
+		return err
+	}
+
+	s.logger.Debug("User status updated:", slog.Any("id", id), slog.Any("state", state))
+
+	return nil
 }

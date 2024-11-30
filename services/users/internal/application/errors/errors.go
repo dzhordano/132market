@@ -1,8 +1,9 @@
 package errors
 
 import (
-	"dzhordano/132market/services/users/internal/infrastructure/db/postgres"
 	"errors"
+
+	"github.com/dzhordano/132market/services/users/internal/infrastructure/db/postgres"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

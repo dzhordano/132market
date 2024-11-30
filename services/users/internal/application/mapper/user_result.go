@@ -1,8 +1,8 @@
 package mapper
 
 import (
-	"dzhordano/132market/services/users/internal/application/model"
-	"dzhordano/132market/services/users/internal/domain/entities"
+	"github.com/dzhordano/132market/services/users/internal/application/model"
+	"github.com/dzhordano/132market/services/users/internal/domain/entities"
 )
 
 func NewUserResultFromEntity(entity *entities.User) *model.UserResult {

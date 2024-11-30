@@ -1,9 +1,8 @@
 package mapper
 
 import (
-	"dzhordano/132market/services/users/internal/application/model"
-	"dzhordano/132market/services/users/pkg/pb/user_v1"
-
+	"github.com/dzhordano/132market/services/users/internal/application/model"
+	"github.com/dzhordano/132market/services/users/pkg/pb/user_v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 

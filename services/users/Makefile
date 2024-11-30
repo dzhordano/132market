@@ -36,3 +36,6 @@ init-test-db:
 
 goose-up:
 	goose -dir migrations postgres ${POSTGRES_DSN} up
+
+mockgen:
+	mockgen -source=internal/application/interfaces/user_service.go -destination=internal/interfaces/grpc/mocks/mocks.go 

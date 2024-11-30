@@ -24,8 +24,12 @@ const (
 	UserServiceV1_UpdateUser_FullMethodName            = "/api.UserServiceV1/UpdateUser"
 	UserServiceV1_FindUserById_FullMethodName          = "/api.UserServiceV1/FindUserById"
 	UserServiceV1_FindUserByCredentials_FullMethodName = "/api.UserServiceV1/FindUserByCredentials"
-	UserServiceV1_FindAllUsers_FullMethodName          = "/api.UserServiceV1/FindAllUsers"
+	UserServiceV1_ListUsers_FullMethodName             = "/api.UserServiceV1/ListUsers"
 	UserServiceV1_DeleteUser_FullMethodName            = "/api.UserServiceV1/DeleteUser"
+	UserServiceV1_SearchUsers_FullMethodName           = "/api.UserServiceV1/SearchUsers"
+	UserServiceV1_SetUserState_FullMethodName          = "/api.UserServiceV1/SetUserState"
+	UserServiceV1_UpdateLastSeen_FullMethodName        = "/api.UserServiceV1/UpdateLastSeen"
+	UserServiceV1_CheckUserExists_FullMethodName       = "/api.UserServiceV1/CheckUserExists"
 )
 
 // UserServiceV1Client is the client API for UserServiceV1 service.
@@ -36,8 +40,13 @@ type UserServiceV1Client interface {
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
 	FindUserById(ctx context.Context, in *FindUserByIdRequest, opts ...grpc.CallOption) (*FindUserByIdResponse, error)
 	FindUserByCredentials(ctx context.Context, in *FindUserByCredentialsRequest, opts ...grpc.CallOption) (*FindUserByCredentialsResponse, error)
-	FindAllUsers(ctx context.Context, in *FindAllUsersRequest, opts ...grpc.CallOption) (*FindAllUsersResponse, error)
+	ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error)
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// Methods offered by ai, valid? I guess useful...
+	SearchUsers(ctx context.Context, in *SearchUsersRequest, opts ...grpc.CallOption) (*SearchUsersResponse, error)
+	SetUserState(ctx context.Context, in *SetUserStateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateLastSeen(ctx context.Context, in *UpdateLastSeenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	CheckUserExists(ctx context.Context, in *CheckUserExistsRequest, opts ...grpc.CallOption) (*CheckUserExistsResponse, error)
 }
 
 type userServiceV1Client struct {
@@ -88,10 +97,10 @@ func (c *userServiceV1Client) FindUserByCredentials(ctx context.Context, in *Fin
 	return out, nil
 }
 
-func (c *userServiceV1Client) FindAllUsers(ctx context.Context, in *FindAllUsersRequest, opts ...grpc.CallOption) (*FindAllUsersResponse, error) {
+func (c *userServiceV1Client) ListUsers(ctx context.Context, in *ListUsersRequest, opts ...grpc.CallOption) (*ListUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(FindAllUsersResponse)
-	err := c.cc.Invoke(ctx, UserServiceV1_FindAllUsers_FullMethodName, in, out, cOpts...)
+	out := new(ListUsersResponse)
+	err := c.cc.Invoke(ctx, UserServiceV1_ListUsers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +117,46 @@ func (c *userServiceV1Client) DeleteUser(ctx context.Context, in *DeleteUserRequ
 	return out, nil
 }
 
+func (c *userServiceV1Client) SearchUsers(ctx context.Context, in *SearchUsersRequest, opts ...grpc.CallOption) (*SearchUsersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SearchUsersResponse)
+	err := c.cc.Invoke(ctx, UserServiceV1_SearchUsers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceV1Client) SetUserState(ctx context.Context, in *SetUserStateRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, UserServiceV1_SetUserState_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceV1Client) UpdateLastSeen(ctx context.Context, in *UpdateLastSeenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, UserServiceV1_UpdateLastSeen_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userServiceV1Client) CheckUserExists(ctx context.Context, in *CheckUserExistsRequest, opts ...grpc.CallOption) (*CheckUserExistsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckUserExistsResponse)
+	err := c.cc.Invoke(ctx, UserServiceV1_CheckUserExists_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServiceV1Server is the server API for UserServiceV1 service.
 // All implementations must embed UnimplementedUserServiceV1Server
 // for forward compatibility.
@@ -116,8 +165,13 @@ type UserServiceV1Server interface {
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
 	FindUserById(context.Context, *FindUserByIdRequest) (*FindUserByIdResponse, error)
 	FindUserByCredentials(context.Context, *FindUserByCredentialsRequest) (*FindUserByCredentialsResponse, error)
-	FindAllUsers(context.Context, *FindAllUsersRequest) (*FindAllUsersResponse, error)
+	ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error)
 	DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error)
+	// Methods offered by ai, valid? I guess useful...
+	SearchUsers(context.Context, *SearchUsersRequest) (*SearchUsersResponse, error)
+	SetUserState(context.Context, *SetUserStateRequest) (*emptypb.Empty, error)
+	UpdateLastSeen(context.Context, *UpdateLastSeenRequest) (*emptypb.Empty, error)
+	CheckUserExists(context.Context, *CheckUserExistsRequest) (*CheckUserExistsResponse, error)
 	mustEmbedUnimplementedUserServiceV1Server()
 }
 
@@ -140,11 +194,23 @@ func (UnimplementedUserServiceV1Server) FindUserById(context.Context, *FindUserB
 func (UnimplementedUserServiceV1Server) FindUserByCredentials(context.Context, *FindUserByCredentialsRequest) (*FindUserByCredentialsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindUserByCredentials not implemented")
 }
-func (UnimplementedUserServiceV1Server) FindAllUsers(context.Context, *FindAllUsersRequest) (*FindAllUsersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindAllUsers not implemented")
+func (UnimplementedUserServiceV1Server) ListUsers(context.Context, *ListUsersRequest) (*ListUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListUsers not implemented")
 }
 func (UnimplementedUserServiceV1Server) DeleteUser(context.Context, *DeleteUserRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteUser not implemented")
+}
+func (UnimplementedUserServiceV1Server) SearchUsers(context.Context, *SearchUsersRequest) (*SearchUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchUsers not implemented")
+}
+func (UnimplementedUserServiceV1Server) SetUserState(context.Context, *SetUserStateRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetUserState not implemented")
+}
+func (UnimplementedUserServiceV1Server) UpdateLastSeen(context.Context, *UpdateLastSeenRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateLastSeen not implemented")
+}
+func (UnimplementedUserServiceV1Server) CheckUserExists(context.Context, *CheckUserExistsRequest) (*CheckUserExistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckUserExists not implemented")
 }
 func (UnimplementedUserServiceV1Server) mustEmbedUnimplementedUserServiceV1Server() {}
 func (UnimplementedUserServiceV1Server) testEmbeddedByValue()                       {}
@@ -239,20 +305,20 @@ func _UserServiceV1_FindUserByCredentials_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UserServiceV1_FindAllUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FindAllUsersRequest)
+func _UserServiceV1_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UserServiceV1Server).FindAllUsers(ctx, in)
+		return srv.(UserServiceV1Server).ListUsers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UserServiceV1_FindAllUsers_FullMethodName,
+		FullMethod: UserServiceV1_ListUsers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServiceV1Server).FindAllUsers(ctx, req.(*FindAllUsersRequest))
+		return srv.(UserServiceV1Server).ListUsers(ctx, req.(*ListUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -271,6 +337,78 @@ func _UserServiceV1_DeleteUser_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(UserServiceV1Server).DeleteUser(ctx, req.(*DeleteUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServiceV1_SearchUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SearchUsersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceV1Server).SearchUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServiceV1_SearchUsers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceV1Server).SearchUsers(ctx, req.(*SearchUsersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServiceV1_SetUserState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetUserStateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceV1Server).SetUserState(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServiceV1_SetUserState_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceV1Server).SetUserState(ctx, req.(*SetUserStateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServiceV1_UpdateLastSeen_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateLastSeenRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceV1Server).UpdateLastSeen(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServiceV1_UpdateLastSeen_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceV1Server).UpdateLastSeen(ctx, req.(*UpdateLastSeenRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UserServiceV1_CheckUserExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckUserExistsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServiceV1Server).CheckUserExists(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UserServiceV1_CheckUserExists_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServiceV1Server).CheckUserExists(ctx, req.(*CheckUserExistsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -299,12 +437,28 @@ var UserServiceV1_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UserServiceV1_FindUserByCredentials_Handler,
 		},
 		{
-			MethodName: "FindAllUsers",
-			Handler:    _UserServiceV1_FindAllUsers_Handler,
+			MethodName: "ListUsers",
+			Handler:    _UserServiceV1_ListUsers_Handler,
 		},
 		{
 			MethodName: "DeleteUser",
 			Handler:    _UserServiceV1_DeleteUser_Handler,
+		},
+		{
+			MethodName: "SearchUsers",
+			Handler:    _UserServiceV1_SearchUsers_Handler,
+		},
+		{
+			MethodName: "SetUserState",
+			Handler:    _UserServiceV1_SetUserState_Handler,
+		},
+		{
+			MethodName: "UpdateLastSeen",
+			Handler:    _UserServiceV1_UpdateLastSeen_Handler,
+		},
+		{
+			MethodName: "CheckUserExists",
+			Handler:    _UserServiceV1_CheckUserExists_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

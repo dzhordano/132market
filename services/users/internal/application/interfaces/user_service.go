@@ -2,8 +2,9 @@ package interfaces
 
 import (
 	"context"
-	"dzhordano/132market/services/users/internal/application/command"
-	"dzhordano/132market/services/users/internal/application/query"
+
+	"github.com/dzhordano/132market/services/users/internal/application/command"
+	"github.com/dzhordano/132market/services/users/internal/application/query"
 )
 
 type UserService interface {
@@ -12,5 +13,9 @@ type UserService interface {
 	DeleteUser(ctx context.Context, id string) error
 	FindUserById(ctx context.Context, id string) (*query.UserQueryResult, error)
 	FindUserByCredentials(ctx context.Context, email, password string) (*query.UserQueryResult, error)
-	FindAllUsers(ctx context.Context, offset, limit uint64) (*query.UserQueryListResult, error)
+	ListUsers(ctx context.Context, offset, limit uint64, filters map[string]string) (*query.UserQueryListResult, error)
+
+	CheckUserExists(ctx context.Context, email string) (bool, error)
+	UpdateLastSeen(ctx context.Context, id string) error
+	SetUserState(ctx context.Context, id string, state string) error
 }

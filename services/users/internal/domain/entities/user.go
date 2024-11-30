@@ -82,6 +82,15 @@ func (s State) String() string {
 	return string(s)
 }
 
+func (s State) Validate() bool {
+	switch s {
+	case StateActive, StateBlocked, StateDeleted:
+		return true
+	default:
+		return false
+	}
+}
+
 func (u *User) ChangeState(state State) {
 	u.State = state
 }
