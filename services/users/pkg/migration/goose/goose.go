@@ -2,9 +2,10 @@ package goose
 
 import (
 	"context"
+	"log"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
-	"log"
 )
 
 func Run(ctx context.Context, dir, dbString, command string) error {
@@ -19,5 +20,6 @@ func Run(ctx context.Context, dir, dbString, command string) error {
 		}
 	}()
 
+	// FIXME IDK why dir formats from ../../migrations to ./migrations. ?????
 	return goose.RunContext(ctx, command, db, dir, []string{dbString, command}...)
 }

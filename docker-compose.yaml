@@ -7,13 +7,13 @@ services:
     ports:
       - 55001:55001
     depends_on:
-      - postgres
+      - users-pg
     networks:
       - users-network
   users-pg:
     container_name: users-db  
-    image: postgres
     hostname: users-db
+    image: postgres
     env_file:
       - ./services/users/.env
     ports:

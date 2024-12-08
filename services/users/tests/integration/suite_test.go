@@ -3,6 +3,7 @@ package integration
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"log/slog"
 	"os"
@@ -18,6 +19,11 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 	"github.com/stretchr/testify/suite"
+)
+
+const (
+	envFile       string = "./../../.env"
+	migrationsDir string = "../../migrations/"
 )
 
 func TestSuite(t *testing.T) {
@@ -37,7 +43,7 @@ type BaseSuite struct {
 }
 
 func (s *BaseSuite) SetupSuite() {
-	if err := godotenv.Load("./../../.env"); err != nil {
+	if err := godotenv.Load(envFile); err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
@@ -46,8 +52,10 @@ func (s *BaseSuite) SetupSuite() {
 		log.Fatal("POSTGRES_TEST_DSN variable is not set")
 	}
 
+	fmt.Println(migrationsDir)
+
 	s.pool = postgres.NewPool(dsn)
-	if err := goose.Run(context.TODO(), "./../../migrations", dsn, "up"); err != nil {
+	if err := goose.Run(context.TODO(), migrationsDir, dsn, "up"); err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 

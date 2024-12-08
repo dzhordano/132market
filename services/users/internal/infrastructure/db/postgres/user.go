@@ -44,7 +44,7 @@ func (r *UserRepository) FindById(ctx context.Context, id uuid.UUID) (*entities.
 	row := r.db.QueryRow(ctx, query, args...)
 
 	var user entities.User
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.NoDataFound {
@@ -74,7 +74,7 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*entiti
 	row := r.db.QueryRow(ctx, query, args...)
 	var user entities.User
 
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
 		}
@@ -104,7 +104,7 @@ func (r *UserRepository) FindByCredentials(ctx context.Context, email, password 
 	row := r.db.QueryRow(ctx, query, args...)
 
 	var user entities.User
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
 		}
@@ -142,7 +142,7 @@ func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64, filt
 	var users []*entities.User
 	for rows.Next() {
 		var user entities.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.IsDeleted, &user.DeletedAt); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 		users = append(users, &user)
@@ -165,8 +165,8 @@ func (r *UserRepository) Save(ctx context.Context, user *entities.User) (*entiti
 	const op = "repository.user.Save"
 
 	insertBuilder := sq.Insert(usersTable).
-		Columns("id", "name", "email", "password_hash", "roles", "status", "state", "created_at", "last_seen_at", "is_deleted", "deleted_at").
-		Values(user.ID, user.Name, user.Email, user.PasswordHash, user.RolesToStrings(), user.Status, user.State, user.CreatedAt, user.LastSeenAt, user.IsDeleted, user.DeletedAt).
+		Columns("id", "name", "email", "password_hash", "roles", "status", "state", "created_at", "last_seen_at", "deleted_at").
+		Values(user.ID, user.Name, user.Email, user.PasswordHash, user.RolesToStrings(), user.Status, user.State, user.CreatedAt, user.LastSeenAt, user.DeletedAt).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := insertBuilder.ToSql()
@@ -179,7 +179,7 @@ func (r *UserRepository) Save(ctx context.Context, user *entities.User) (*entiti
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.UniqueViolation {
-				return nil, fmt.Errorf("%s: %w", op, ErrAlreadyExists) // TODO Сделать константой
+				return nil, fmt.Errorf("%s: %w", op, ErrAlreadyExists)
 			}
 		}
 
@@ -200,7 +200,6 @@ func (r *UserRepository) Update(ctx context.Context, user *entities.User) (*enti
 		Set("status", user.Status).
 		Set("state", user.State).
 		Set("last_seen_at", user.LastSeenAt).
-		Set("is_deleted", user.IsDeleted).
 		Set("deleted_at", user.DeletedAt).
 		Where(sq.Eq{"id": user.ID}).
 		PlaceholderFormat(sq.Dollar)

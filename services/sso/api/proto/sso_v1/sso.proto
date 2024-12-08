@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package api;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "dzhordano/132market/services/sso/internal/interface/api/grpc/pb/sso_v1;sso_v1";
+
+
+service AuthenticationV1 {
+    rpc Register(RegisterRequest) returns (google.protobuf.Empty);
+    rpc Login(LoginRequest) returns (LoginResponse);
+    rpc RefreshTokens(RefreshTokensRequest) returns (RefreshTokensResponse);
+
+    // sso_v2 пофиксит (я буду делать затем сессионно-токенную системы, но не сейчас)
+    // rpc Logout(LogoutRequest) returns (google.protobuf.Empty);
+    // rpc RevokeSession(RevokeSessionRequest) returns (RevokeSessionResponse);
+}
+
+service AuthorizationV1 {
+    rpc GetUserPermissions(GetUserPermissionsRequest) returns (GetUserPermissionsResponse);
+    rpc GetUserRoles(GetUserRolesRequest) returns (GetUserRolesResponse);
+    rpc AssignRoleToUser(AssignRoleToUserRequest) returns (AssignRoleToUserResponse);
+    rpc RevokeRoleFromUser(RevokeRoleFromUserRequest) returns (RevokeRoleFromUserResponse);
+}
+
+service ValidationV1 {
+    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+}
+
+message RegisterRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
+    string refresh_token = 2;
+}
+
+message RefreshTokensRequest {
+    string refresh_token = 1;
+}
+
+message RefreshTokensResponse {
+    string access_token = 1;
+    string refresh_token = 2;
+}
+
+message GetUserPermissionsRequest {
+    string token = 1;
+}
+
+message GetUserPermissionsResponse {
+    repeated string permissions = 1;
+}
+
+message GetUserRolesRequest {
+    string token = 1;
+}
+
+message GetUserRolesResponse {
+    repeated string roles = 1;
+}
+
+message AssignRoleToUserRequest {
+    string token = 1;
+    string role = 2;
+}
+
+message AssignRoleToUserResponse {
+    bool assigned = 1;
+}
+
+message RevokeRoleFromUserRequest {
+    string token = 1;
+    string role = 2;
+}
+
+message RevokeRoleFromUserResponse {
+    bool revoked = 1;
+}
+
+
+message ValidateTokenRequest {
+    string token = 1;
+}
+
+message ValidateTokenResponse {
+    bool valid = 1;
+}

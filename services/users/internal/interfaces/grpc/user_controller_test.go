@@ -32,7 +32,6 @@ func Test_FindUserById(t *testing.T) {
 		State:      entities.StateActive,
 		CreatedAt:  time.Now(),
 		LastSeenAt: time.Now(),
-		IsDeleted:  false,
 		DeletedAt:  time.Time{},
 	}
 
@@ -123,7 +122,6 @@ func Test_FindUserByCredentials(t *testing.T) {
 		State:      entities.StateActive,
 		CreatedAt:  time.Now(),
 		LastSeenAt: time.Now(),
-		IsDeleted:  false,
 		DeletedAt:  time.Time{},
 	}
 
@@ -216,7 +214,6 @@ func Test_FindAllUsers(t *testing.T) {
 		State:      entities.StateActive,
 		CreatedAt:  time.Now(),
 		LastSeenAt: time.Now(),
-		IsDeleted:  false,
 		DeletedAt:  time.Time{},
 	}
 	testUser_2 := &entities.User{
@@ -228,7 +225,6 @@ func Test_FindAllUsers(t *testing.T) {
 		State:      entities.StateActive,
 		CreatedAt:  time.Now(),
 		LastSeenAt: time.Now(),
-		IsDeleted:  false,
 		DeletedAt:  time.Time{},
 	}
 	testUser_3 := &entities.User{
@@ -240,7 +236,6 @@ func Test_FindAllUsers(t *testing.T) {
 		State:      entities.StateActive,
 		CreatedAt:  time.Now(),
 		LastSeenAt: time.Now(),
-		IsDeleted:  false,
 		DeletedAt:  time.Time{},
 	}
 
@@ -251,48 +246,49 @@ func Test_FindAllUsers(t *testing.T) {
 		expectedResult *user_v1.ListUsersResponse
 		expectedErr    error
 	}{
-		{name: "OK", inpReq: &user_v1.ListUsersRequest{
-			Offset: 0,
-			Limit:  10,
-		}, mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
-			s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(&query.UserQueryListResult{
-				Result: mapper.NewUserResultListFromEntities([]*entities.User{
-					testUser_1, testUser_2, testUser_3})},
-				nil)
-		}, expectedResult: &user_v1.ListUsersResponse{
-			Users: []*user_v1.User{
-				{
-					Id:         uuid.UUID{}.String(),
-					Name:       "test1",
-					Email:      "test1@mail.ru",
-					Roles:      []string{entities.RoleUser.String()},
-					Status:     "offline",
-					State:      "active",
-					CreatedAt:  timestamppb.New(time.Now()),
-					LastSeenAt: timestamppb.New(time.Now()),
+		{
+			name: "OK", inpReq: &user_v1.ListUsersRequest{
+				Offset: 0,
+				Limit:  10,
+			}, mockBehavior: func(s *mock_interfaces.MockUserService, offset, limit uint64, filters map[string]string) {
+				s.EXPECT().ListUsers(context.Background(), offset, limit, filters).Return(&query.UserQueryListResult{
+					Result: mapper.NewUserResultListFromEntities([]*entities.User{
+						testUser_1, testUser_2, testUser_3})},
+					nil)
+			}, expectedResult: &user_v1.ListUsersResponse{
+				Users: []*user_v1.User{
+					{
+						Id:         uuid.UUID{}.String(),
+						Name:       "test1",
+						Email:      "test1@mail.ru",
+						Roles:      []string{entities.RoleUser.String()},
+						Status:     "offline",
+						State:      "active",
+						CreatedAt:  timestamppb.New(time.Now()),
+						LastSeenAt: timestamppb.New(time.Now()),
+					},
+					{
+						Id:         uuid.UUID{}.String(),
+						Name:       "test2",
+						Email:      "test2@mail.ru",
+						Roles:      []string{entities.RoleUser.String()},
+						Status:     "offline",
+						State:      "active",
+						CreatedAt:  timestamppb.New(time.Now()),
+						LastSeenAt: timestamppb.New(time.Now()),
+					},
+					{
+						Id:         uuid.UUID{}.String(),
+						Name:       "test3",
+						Email:      "test3@mail.ru",
+						Roles:      []string{entities.RoleUser.String()},
+						Status:     "offline",
+						State:      "active",
+						CreatedAt:  timestamppb.New(time.Now()),
+						LastSeenAt: timestamppb.New(time.Now()),
+					},
 				},
-				{
-					Id:         uuid.UUID{}.String(),
-					Name:       "test2",
-					Email:      "test2@mail.ru",
-					Roles:      []string{entities.RoleUser.String()},
-					Status:     "offline",
-					State:      "active",
-					CreatedAt:  timestamppb.New(time.Now()),
-					LastSeenAt: timestamppb.New(time.Now()),
-				},
-				{
-					Id:         uuid.UUID{}.String(),
-					Name:       "test3",
-					Email:      "test3@mail.ru",
-					Roles:      []string{entities.RoleUser.String()},
-					Status:     "offline",
-					State:      "active",
-					CreatedAt:  timestamppb.New(time.Now()),
-					LastSeenAt: timestamppb.New(time.Now()),
-				},
-			},
-		}, expectedErr: nil},
+			}, expectedErr: nil},
 		{
 			name: "Retrieve with limit 2",
 			inpReq: &user_v1.ListUsersRequest{
@@ -716,5 +712,3 @@ func Test_DeleteUser(t *testing.T) {
 		})
 	}
 }
-
-// TODO Fuzz тесты не забыть

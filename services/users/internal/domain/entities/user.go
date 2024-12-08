@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"errors"
 	"fmt"
 	"net/mail"
 	"strings"
@@ -19,7 +20,6 @@ type User struct {
 	State        State
 	CreatedAt    time.Time
 	LastSeenAt   time.Time
-	IsDeleted    bool
 	DeletedAt    time.Time
 }
 
@@ -112,7 +112,7 @@ func NewUser(name, email, password string) (*User, error) {
 		State:        StateActive,
 		CreatedAt:    time.Now(),
 		LastSeenAt:   time.Now(),
-		IsDeleted:    false,
+		DeletedAt:    time.Time{},
 	}
 
 	user.AddRole(RoleUser)
@@ -131,69 +131,70 @@ func (u *User) RolesToStrings() []string {
 func (u *User) UpdateName(newName string) error {
 	u.Name = newName
 
-	return u.Validate()
+	return u.ValidateName()
 }
 
 func (u *User) UpdateEmail(newEmail string) error {
 	u.Email = newEmail
 
-	return u.Validate()
+	return u.ValidateEmail()
 }
 
 func (u *User) UpdatePassword(newPassword string) error {
 	u.PasswordHash = newPassword
 
-	return u.Validate()
+	if u.PasswordHash == "" {
+		return errors.New("invalid password")
+	}
+
+	return nil
 }
 
 const symbols = `$*()#@!%/`
 const digits = "0123456789"
-const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-// FIXME улучшить валидацию?
-func (u *User) Validate() error {
+func (u *User) Validate() (errs []error) {
+
 	if _, err := uuid.Parse(u.ID.String()); err != nil {
-		return fmt.Errorf("user id is invalid")
+		errs = append(errs, errors.New("invalid uuid"))
 	}
 
-	if u.Name == "" || strings.Contains(u.Name, symbols+digits) || len(u.Name) < 2 || len(u.Name) > 50 {
-		return fmt.Errorf("invalid name")
+	if err := u.ValidateName(); err != nil {
+		errs = append(errs, err)
 	}
 
-	if u.Email == "" {
-		return fmt.Errorf("invalid email address")
-	}
-
-	if _, err := mail.ParseAddress(u.Email); err != nil {
-		return fmt.Errorf("invalid email address")
+	if err := u.ValidateEmail(); err != nil {
+		errs = append(errs, err)
 	}
 
 	if u.PasswordHash == "" {
-		return fmt.Errorf("invalid password")
+		errs = append(errs, errors.New("invalid uuid"))
 	}
 
-	for _, ch := range u.PasswordHash {
-		if !strings.ContainsRune(letters, ch) && !strings.ContainsRune(digits, ch) && !strings.ContainsRune(symbols, ch) {
-			return fmt.Errorf("invalid password. contains invalid character: '%c'", ch)
-		}
+	return
+}
+
+func (u *User) ValidateName() error {
+	if u.Name == "" || strings.ContainsAny(u.Name, symbols+digits) || len(u.Name) < 2 || len(u.Name) > 50 {
+		return errors.New("invalid name")
+	}
+	return nil
+}
+
+func (u *User) ValidateEmail() error {
+	if u.Email == "" {
+		return errors.New("invalid email")
 	}
 
-	if len(u.PasswordHash) < 8 || !strings.ContainsAny(u.PasswordHash, symbols) || !strings.ContainsAny(u.PasswordHash, digits) {
-		return fmt.Errorf("password must be at least 8 characters long and contain at least one digit and special symbol")
+	if _, err := mail.ParseAddress(u.Email); err != nil {
+		return fmt.Errorf("invalid email: %w", err)
 	}
 
 	return nil
 }
 
-func (u *User) DeleteUser() error {
-	if u.HasRole(RoleAdmin) {
-		return fmt.Errorf("cannot delete admin user") // FIXME норм ваще причина? ха-ха
-	}
-
+func (u *User) MarkDeleted() {
 	u.Status = StatusOffline
 	u.State = StateDeleted
-	u.IsDeleted = true
 	u.DeletedAt = time.Now()
-
-	return nil
 }

@@ -31,3 +31,22 @@ func ToGRPCError(err error) error {
 		return status.Error(codes.Internal, "internal error")
 	}
 }
+
+// FIXME костыльная тема как-будто, но робит...
+func ToGRPCErrors(mainErr error, detailErrs []error) (err error) {
+	switch {
+	case errors.Is(mainErr, postgres.ErrNotFound):
+		err = status.Error(codes.NotFound, "not found:\n"+errors.Join(detailErrs...).Error())
+
+	case errors.Is(mainErr, ErrBadRequest):
+		err = status.Error(codes.InvalidArgument, "bad request:\n"+errors.Join(detailErrs...).Error())
+
+	case errors.Is(mainErr, postgres.ErrAlreadyExists):
+		err = status.Error(codes.AlreadyExists, "already exists:\n"+errors.Join(detailErrs...).Error())
+
+	default:
+		err = status.Error(codes.Internal, "internal error:\n"+errors.Join(detailErrs...).Error())
+	}
+
+	return
+}

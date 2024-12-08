@@ -19,6 +19,8 @@ WORKDIR /app
 
 COPY --from=builder /app/main .
 COPY --from=builder /app/.env .
+
+RUN mkdir /migrations
 COPY --from=builder /app/migrations ./migrations
 
 CMD ["./main"]

@@ -43,8 +43,9 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 		return nil, err
 	}
 
-	if err := newUser.Validate(); err != nil {
-		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
+	errs := newUser.Validate()
+	if len(errs) > 0 {
+		return nil, svcErrors.ToGRPCErrors(svcErrors.ErrBadRequest, errs)
 	}
 
 	s.logger.Debug("User created and validated:", slog.Any("user", newUser))
@@ -81,8 +82,9 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 	user.UpdateEmail(userCommand.Email)
 	user.UpdatePassword(userCommand.PasswordHash)
 
-	if err := user.Validate(); err != nil {
-		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
+	errs := user.Validate()
+	if len(errs) > 0 {
+		return nil, svcErrors.ToGRPCErrors(svcErrors.ErrBadRequest, errs)
 	}
 
 	s.logger.Debug("User updated and validated:", slog.Any("user", user))

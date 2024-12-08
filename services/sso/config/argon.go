@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	saltLen    = "ARGON_SALT_lENGTH"
+	saltLen    = "ARGON_SALT_LENGTH"
 	keyLen     = "ARGON_KEY_LENGTH"
 	timeCost   = "ARGON_TIME_COST"
 	memoryCost = "ARGON_MEMORY_COST"
