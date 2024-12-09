@@ -35,7 +35,7 @@ func (c *jwtConfig) RTTL() time.Duration {
 	return c.rttl
 }
 
-func NewJWTConfig() JWTConfig {
+func MustNewJwtConfig() JWTConfig {
 	signingKey := os.Getenv(jwtSigningKey)
 	if signingKey == "" {
 		panic("JWT_SIGNING_KEY is not set")

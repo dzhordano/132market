@@ -13,11 +13,11 @@ import (
 type AuthenticationService struct {
 	log      logger.Logger
 	usersSvc interfaces.UsersService
-	tokens   jwtManager.JwtGenerator
+	tokens   jwtManager.TokenManager
 	hasher   hasher.PasswordHasher
 }
 
-func NewAuthenticationService(log logger.Logger, usersSvc interfaces.UsersService, tokens jwtManager.JwtGenerator, hasher hasher.PasswordHasher) interfaces.AuthenticationService {
+func NewAuthenticationService(log logger.Logger, usersSvc interfaces.UsersService, tokens jwtManager.TokenManager, hasher hasher.PasswordHasher) interfaces.AuthenticationService {
 	return &AuthenticationService{
 		log:      log,
 		usersSvc: usersSvc,

@@ -11,8 +11,12 @@ func NewJwtService(jwtGenerator TokenGenerator, jwtValidator TokenValidator) Tok
 	}
 }
 
-func (j *JwtService) GenerateToken(user_id string, roles []string) (string, error) {
-	return j.jwtGenerator.GenerateToken(user_id, roles)
+func (j *JwtService) GenerateAccessToken(user_id string, roles []string) (string, error) {
+	return j.jwtGenerator.GenerateAccessToken(user_id, roles)
+}
+
+func (j *JwtService) GenerateRefreshToken() (string, error) {
+	return j.jwtGenerator.GenerateRefreshToken()
 }
 
 func (j *JwtService) ValidateToken(token string) (map[string]interface{}, error) {

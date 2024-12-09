@@ -3,16 +3,20 @@ package grpc
 import (
 	"context"
 
+	"github.com/dzhordano/132market/services/sso/internal/application/interfaces"
 	"github.com/dzhordano/132market/services/sso/pkg/pb/sso_v1"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type AuthenticationController struct {
+	authenticationService interfaces.AuthenticationService
 	sso_v1.UnimplementedAuthenticationV1Server
 }
 
-func NewAuthenticationController() *AuthenticationController {
-	return &AuthenticationController{}
+func NewAuthenticationController(as interfaces.AuthenticationService) *AuthenticationController {
+	return &AuthenticationController{
+		authenticationService: as,
+	}
 }
 
 func (c *AuthenticationController) Register(ctx context.Context, request *sso_v1.RegisterRequest) (*emptypb.Empty, error) {

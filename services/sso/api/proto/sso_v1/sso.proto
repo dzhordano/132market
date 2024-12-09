@@ -24,10 +24,6 @@ service AuthorizationV1 {
     rpc RevokeRoleFromUser(RevokeRoleFromUserRequest) returns (RevokeRoleFromUserResponse);
 }
 
-service ValidationV1 {
-    rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
-}
-
 message RegisterRequest {
     string email = 1;
     string password = 2;
@@ -84,13 +80,4 @@ message RevokeRoleFromUserRequest {
 
 message RevokeRoleFromUserResponse {
     bool revoked = 1;
-}
-
-
-message ValidateTokenRequest {
-    string token = 1;
-}
-
-message ValidateTokenResponse {
-    bool valid = 1;
 }

@@ -3,15 +3,19 @@ package grpc
 import (
 	"context"
 
+	"github.com/dzhordano/132market/services/sso/internal/application/interfaces"
 	"github.com/dzhordano/132market/services/sso/pkg/pb/sso_v1"
 )
 
 type AuthorizationController struct {
+	authorizationService interfaces.AuthorizationService
 	sso_v1.UnimplementedAuthorizationV1Server
 }
 
-func NewAuthorizationController() *AuthorizationController {
-	return &AuthorizationController{}
+func NewAuthorizationController(as interfaces.AuthorizationService) *AuthorizationController {
+	return &AuthorizationController{
+		authorizationService: as,
+	}
 }
 
 func (c *AuthorizationController) GetUserPermissions(ctx context.Context, request *sso_v1.GetUserPermissionsRequest) (*sso_v1.GetUserPermissionsResponse, error) {

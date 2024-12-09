@@ -29,7 +29,7 @@ type argon2Config struct {
 	keyLen  uint32
 }
 
-func MustNewArgonConfig() Argon2Config {
+func MustNewArgon2Config() Argon2Config {
 	return &argon2Config{
 		time:    uint32(getEnvInt(timeCost)),
 		saltLen: uint32(getEnvInt(saltLen)),

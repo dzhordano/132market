@@ -18,6 +18,6 @@ type UsersRepository interface {
 }
 
 type RolesRepository interface {
-	FindByName(ctx context.Context, role string) (*entities.Role, error)
 	RolesById(ctx context.Context, id string) (*[]entities.Role, error)
+	RolePermissions(ctx context.Context, role string) ([]string, error)
 }

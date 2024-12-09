@@ -1,7 +1,8 @@
 package jwt
 
 type TokenGenerator interface {
-	GenerateToken(user_id string, roles []string) (string, error)
+	GenerateAccessToken(user_id string, roles []string) (string, error)
+	GenerateRefreshToken() (string, error)
 }
 
 type TokenValidator interface {

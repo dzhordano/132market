@@ -11,6 +11,7 @@ get-deps:
 
 generate:
 	make generate-sso-api-v1
+	make generate-token-validation-api-v1
 
 generate-sso-api-v1:
 	mkdir -p pkg/pb
@@ -21,6 +22,16 @@ generate-sso-api-v1:
 	--go-grpc_out=pkg/pb/sso_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=.bin/protoc-gen-go-grpc.exe \
 	api/proto/sso_v1/sso.proto
+
+generate-token-validation-api-v1:
+	mkdir -p pkg/pb
+	mkdir -p pkg/pb/token_validation_v1
+	protoc --proto_path api/proto/token_validation_v1 \
+	--go_out=pkg/pb/validation_v1 --go_opt=paths=source_relative \
+	--plugin=protoc-gen-go=.bin/protoc-gen-go.exe \
+	--go-grpc_out=pkg/pb/validation_v1 --go-grpc_opt=paths=source_relative \
+	--plugin=protoc-gen-go-grpc=.bin/protoc-gen-go-grpc.exe \
+	api/proto/token_validation_v1/validation.proto
 
 include .env
 
