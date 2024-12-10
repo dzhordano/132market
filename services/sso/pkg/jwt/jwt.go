@@ -15,8 +15,8 @@ func (j *JwtService) GenerateAccessToken(user_id string, roles []string) (string
 	return j.jwtGenerator.GenerateAccessToken(user_id, roles)
 }
 
-func (j *JwtService) GenerateRefreshToken() (string, error) {
-	return j.jwtGenerator.GenerateRefreshToken()
+func (j *JwtService) GenerateRefreshToken(user_id string, roles []string) (string, error) {
+	return j.jwtGenerator.GenerateRefreshToken(user_id, roles)
 }
 
 func (j *JwtService) ValidateToken(token string) (map[string]interface{}, error) {

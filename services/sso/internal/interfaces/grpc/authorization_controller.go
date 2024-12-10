@@ -19,17 +19,45 @@ func NewAuthorizationController(as interfaces.AuthorizationService) *Authorizati
 }
 
 func (c *AuthorizationController) GetUserPermissions(ctx context.Context, request *sso_v1.GetUserPermissionsRequest) (*sso_v1.GetUserPermissionsResponse, error) {
-	return &sso_v1.GetUserPermissionsResponse{}, nil
+	perms, err := c.authorizationService.GetUserPermissions(ctx, request.GetToken())
+	if err != nil {
+		return nil, err
+	}
+
+	return &sso_v1.GetUserPermissionsResponse{
+		Permissions: perms,
+	}, nil
 }
 
 func (c *AuthorizationController) GetUserRoles(ctx context.Context, request *sso_v1.GetUserRolesRequest) (*sso_v1.GetUserRolesResponse, error) {
-	return &sso_v1.GetUserRolesResponse{}, nil
+	roles, err := c.authorizationService.GetUserRoles(ctx, request.GetToken())
+	if err != nil {
+		return nil, err
+	}
+
+	return &sso_v1.GetUserRolesResponse{
+		Roles: roles,
+	}, nil
 }
 
 func (c *AuthorizationController) AssignRoleToUser(ctx context.Context, request *sso_v1.AssignRoleToUserRequest) (*sso_v1.AssignRoleToUserResponse, error) {
-	return &sso_v1.AssignRoleToUserResponse{}, nil
+	err := c.authorizationService.AssignRoleToUser(ctx, request.GetUserId(), request.GetRole())
+	if err != nil {
+		return nil, err
+	}
+
+	return &sso_v1.AssignRoleToUserResponse{
+		Assigned: true,
+	}, nil
 }
 
 func (c *AuthorizationController) RevokeRoleFromUser(ctx context.Context, request *sso_v1.RevokeRoleFromUserRequest) (*sso_v1.RevokeRoleFromUserResponse, error) {
-	return &sso_v1.RevokeRoleFromUserResponse{}, nil
+	err := c.authorizationService.RevokeRoleFromUser(ctx, request.GetUserId(), request.GetRole())
+	if err != nil {
+		return nil, err
+	}
+
+	return &sso_v1.RevokeRoleFromUserResponse{
+		Revoked: true,
+	}, nil
 }

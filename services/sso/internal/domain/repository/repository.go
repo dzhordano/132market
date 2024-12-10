@@ -18,6 +18,6 @@ type UsersRepository interface {
 }
 
 type RolesRepository interface {
-	RolesById(ctx context.Context, id string) (*[]entities.Role, error)
-	RolePermissions(ctx context.Context, role string) ([]string, error)
+	RolesById(ctx context.Context, id string) ([]string, error)
+	RolesPermissions(ctx context.Context, roles []string) ([]string, error)
 }

@@ -63,7 +63,7 @@ func main() {
 
 	uSvc := services.NewUsersService(log, uRepo)
 	athSvc := services.NewAuthenticationService(log, uSvc, tokens, h)
-	atrSvc := services.NewAuthorizationService(log, uSvc, rRepo)
+	atrSvc := services.NewAuthorizationService(log, uSvc, tokenValidator, rRepo)
 	vSvc := services.NewTokenValidationService(log, tokenValidator)
 
 	// SERVER + CONTROLLERS

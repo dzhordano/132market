@@ -20,13 +20,34 @@ func NewAuthenticationController(as interfaces.AuthenticationService) *Authentic
 }
 
 func (c *AuthenticationController) Register(ctx context.Context, request *sso_v1.RegisterRequest) (*emptypb.Empty, error) {
+	err := c.authenticationService.Register(ctx, request.GetEmail(), request.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *AuthenticationController) Login(ctx context.Context, request *sso_v1.LoginRequest) (*sso_v1.LoginResponse, error) {
-	return &sso_v1.LoginResponse{}, nil
+	tokens, err := c.authenticationService.Login(ctx, request.GetEmail(), request.GetPassword())
+	if err != nil {
+		return nil, err
+	}
+
+	return &sso_v1.LoginResponse{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	}, nil
 }
 
 func (c *AuthenticationController) RefreshTokens(ctx context.Context, request *sso_v1.RefreshTokensRequest) (*sso_v1.RefreshTokensResponse, error) {
-	return &sso_v1.RefreshTokensResponse{}, nil
+	tokens, err := c.authenticationService.RefreshTokens(ctx, request.GetRefreshToken())
+	if err != nil {
+		return nil, err
+	}
+
+	return &sso_v1.RefreshTokensResponse{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	}, nil
 }

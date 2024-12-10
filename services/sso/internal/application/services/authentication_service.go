@@ -27,13 +27,67 @@ func NewAuthenticationService(log logger.Logger, usersSvc interfaces.UsersServic
 }
 
 func (s *AuthenticationService) Register(ctx context.Context, email, password string) error {
+	hashedPass, err := s.hasher.Hash(password)
+	if err != nil {
+		return err
+	}
+
+	if err := s.usersSvc.CreateUser(ctx, email, hashedPass); err != nil {
+		return err
+	}
+
+	// FIXME save in users microservice
+
 	return nil
 }
 
 func (s *AuthenticationService) Login(ctx context.Context, email, password string) (*entities.Tokens, error) {
-	return nil, nil
+	user, err := s.usersSvc.FindByEmail(ctx, email)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO check password hash in users microservice
+
+	accessToken, err := s.tokens.GenerateAccessToken(user.ID.String(), user.Roles)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err := s.tokens.GenerateRefreshToken(user.ID.String(), user.Roles)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entities.Tokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
 
 func (s *AuthenticationService) RefreshTokens(ctx context.Context, refreshToken string) (*entities.Tokens, error) {
-	return nil, nil
+	claims, err := s.tokens.ValidateToken(refreshToken)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := s.usersSvc.FindById(ctx, claims["sub"].(string))
+	if err != nil {
+		return nil, err
+	}
+
+	accessToken, err := s.tokens.GenerateAccessToken(user.ID.String(), user.Roles)
+	if err != nil {
+		return nil, err
+	}
+
+	refreshToken, err = s.tokens.GenerateRefreshToken(user.ID.String(), user.Roles)
+	if err != nil {
+		return nil, err
+	}
+
+	return &entities.Tokens{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }

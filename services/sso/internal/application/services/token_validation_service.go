@@ -17,15 +17,16 @@ func NewTokenValidationService(log logger.Logger, validator tokenValidator.Token
 	return &TokenValidationService{log: log, validator: validator}
 }
 
-func (t *TokenValidationService) ValidateToken(ctx context.Context, token string) error {
+func (t *TokenValidationService) ValidateToken(ctx context.Context, token string) (bool, error) {
 	_, err := t.validator.ValidateToken(token)
 	if err != nil {
-		return err
+		// FIXME IF NOT INTERNAL ERROR - RETURN FALSE I GUESS
+		return false, err
 	}
 
 	// FIXME добавить какую-то логику (по сути проверять права пользователя). {Надо другой сервис внедрить?}
 
 	t.log.Info("token is valid")
 
-	return nil
+	return true, nil
 }

@@ -35,7 +35,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-    string token = 1;
+    string access_token = 1;
     string refresh_token = 2;
 }
 
@@ -65,7 +65,7 @@ message GetUserRolesResponse {
 }
 
 message AssignRoleToUserRequest {
-    string token = 1;
+    string user_id = 1;
     string role = 2;
 }
 
@@ -74,7 +74,7 @@ message AssignRoleToUserResponse {
 }
 
 message RevokeRoleFromUserRequest {
-    string token = 1;
+    string user_id = 1;
     string role = 2;
 }
 

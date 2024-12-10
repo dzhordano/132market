@@ -8,18 +8,14 @@ import (
 )
 
 type User struct {
-	ID       uuid.UUID
-	Email    string
-	Password string
-	Roles    []Role
-	State    State
-}
-
-type Role struct {
-	Name        string
-	Permissions []string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID        uuid.UUID
+	Email     string
+	Password  string
+	Roles     []string
+	State     State
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt time.Time
 }
 
 const (
@@ -30,7 +26,7 @@ const (
 
 func (r User) HasRole(role string) bool {
 	for _, v := range r.Roles {
-		if v.Name == role {
+		if v == role {
 			return true
 		}
 	}
@@ -56,9 +52,26 @@ func NewUser(email, password string) (*User, error) {
 	}
 
 	return &User{
-		ID:       id,
-		Email:    email,
-		Password: password,
-		State:    StateActive,
+		ID:    id,
+		Email: email,
+		Roles: []string{
+			RoleUser,
+		},
+		Password:  password,
+		State:     StateActive,
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		DeletedAt: time.Time{},
 	}, nil
 }
+
+func ValidRole(role string) bool {
+	switch role {
+	case RoleAdmin, RoleModer, RoleUser:
+		return true
+	}
+
+	return false
+}
+
+// TODO validation from email and password needed

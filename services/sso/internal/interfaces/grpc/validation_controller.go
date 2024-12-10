@@ -19,5 +19,12 @@ func NewValidationController(tvs interfaces.TokenValidationService) *ValidationC
 }
 
 func (c *ValidationController) ValidateToken(ctx context.Context, request *validation_v1.ValidateTokenRequest) (*validation_v1.ValidateTokenResponse, error) {
-	return &validation_v1.ValidateTokenResponse{}, nil
+	valid, err := c.tokenValidationService.ValidateToken(ctx, request.GetToken())
+	if err != nil {
+		return nil, err
+	}
+
+	return &validation_v1.ValidateTokenResponse{
+		Valid: valid,
+	}, nil
 }

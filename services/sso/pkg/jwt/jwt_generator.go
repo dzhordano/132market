@@ -1,8 +1,6 @@
 package jwt
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -24,7 +22,7 @@ func NewJwtGenerator(sk string, aTTL, rTTL time.Duration) TokenGenerator {
 
 func (j *JwtGenerator) GenerateAccessToken(user_id string, roles []string) (string, error) {
 	claims := jwt.MapClaims{
-		"id":    user_id,
+		"sub":   user_id,
 		"roles": roles,
 		"iat":   time.Now().Unix(),
 		"exp":   j.AccessTokenTTL,
@@ -35,11 +33,25 @@ func (j *JwtGenerator) GenerateAccessToken(user_id string, roles []string) (stri
 	return jwtToken.SignedString([]byte(j.SigningKey))
 }
 
-func (j *JwtGenerator) GenerateRefreshToken() (string, error) {
-	bytes := make([]byte, 32) // 256-битный токен
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return "", err
+func (j *JwtGenerator) GenerateRefreshToken(user_id string, roles []string) (string, error) {
+	claims := jwt.MapClaims{
+		"sub":   user_id,
+		"roles": roles,
+		"iat":   time.Now().Unix(),
+		"exp":   j.RefreshTokenTTL,
 	}
-	return base64.URLEncoding.EncodeToString(bytes), nil
+
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+
+	return jwtToken.SignedString([]byte(j.SigningKey))
 }
+
+// This one in unlucky right there
+// func (j *JwtGenerator) GenerateRefreshToken() (string, error) {
+// 	bytes := make([]byte, 32) // 256-битный токен
+// 	_, err := rand.Read(bytes)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	return base64.URLEncoding.EncodeToString(bytes), nil
+// }
