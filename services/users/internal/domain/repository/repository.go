@@ -17,6 +17,5 @@ type UserRepository interface {
 	Delete(ctx context.Context, id uuid.UUID, deletedAt time.Time) error
 	FindById(ctx context.Context, id uuid.UUID) (*entities.User, error)
 	FindByEmail(ctx context.Context, email string) (*entities.User, error)
-	FindByCredentials(ctx context.Context, email, password string) (*entities.User, error)
 	FindAll(ctx context.Context, offset, limit uint64, filters map[string]string) ([]*entities.User, error)
 }

@@ -111,7 +111,7 @@ func Test_FindUserById(t *testing.T) {
 
 }
 func Test_FindUserByCredentials(t *testing.T) {
-	type mockBehavior func(s *mock_interfaces.MockUserService, email, password string)
+	type mockBehavior func(s *mock_interfaces.MockUserService, email string)
 
 	testUser_1 := &entities.User{
 		ID:         uuid.UUID{},
@@ -127,23 +127,22 @@ func Test_FindUserByCredentials(t *testing.T) {
 
 	tests := []struct {
 		name           string
-		inpReq         *user_v1.FindUserByCredentialsRequest
+		inpReq         *user_v1.FindUserByEmailRequest
 		mockBehavior   mockBehavior
-		expectedResult *user_v1.FindUserByCredentialsResponse
+		expectedResult *user_v1.FindUserByEmailResponse
 		expectedErr    error
 	}{
 		{
 			name: "OK",
-			inpReq: &user_v1.FindUserByCredentialsRequest{
-				Email:    "test@mail.ru",
-				Password: "test",
+			inpReq: &user_v1.FindUserByEmailRequest{
+				Email: "test@mail.ru",
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, email, password string) {
-				s.EXPECT().FindUserByCredentials(context.Background(), email, password).Return(&query.UserQueryResult{
+			mockBehavior: func(s *mock_interfaces.MockUserService, email string) {
+				s.EXPECT().FindUserByEmail(context.Background(), email).Return(&query.UserQueryResult{
 					Result: mapper.NewUserResultFromEntity(testUser_1),
 				}, nil)
 			},
-			expectedResult: &user_v1.FindUserByCredentialsResponse{
+			expectedResult: &user_v1.FindUserByEmailResponse{
 				User: &user_v1.User{
 					Id:         uuid.UUID{}.String(),
 					Name:       "test",
@@ -159,24 +158,22 @@ func Test_FindUserByCredentials(t *testing.T) {
 		},
 		{
 			name: "Not found",
-			inpReq: &user_v1.FindUserByCredentialsRequest{
-				Email:    "test@mail.ru",
-				Password: "test",
+			inpReq: &user_v1.FindUserByEmailRequest{
+				Email: "test@mail.ru",
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, email, password string) {
-				s.EXPECT().FindUserByCredentials(context.Background(), email, password).Return(nil, errors.New("not found"))
+			mockBehavior: func(s *mock_interfaces.MockUserService, email string) {
+				s.EXPECT().FindUserByEmail(context.Background(), email).Return(nil, errors.New("not found"))
 			},
 			expectedResult: nil,
 			expectedErr:    errors.New("not found"),
 		},
 		{
 			name: "Internal Failure",
-			inpReq: &user_v1.FindUserByCredentialsRequest{
-				Email:    "test@mail.ru",
-				Password: "test",
+			inpReq: &user_v1.FindUserByEmailRequest{
+				Email: "test@mail.ru",
 			},
-			mockBehavior: func(s *mock_interfaces.MockUserService, email, password string) {
-				s.EXPECT().FindUserByCredentials(context.Background(), email, password).Return(nil, errors.New("internal failure"))
+			mockBehavior: func(s *mock_interfaces.MockUserService, email string) {
+				s.EXPECT().FindUserByEmail(context.Background(), email).Return(nil, errors.New("internal failure"))
 			},
 			expectedResult: nil,
 			expectedErr:    errors.New("internal failure"),
@@ -189,10 +186,10 @@ func Test_FindUserByCredentials(t *testing.T) {
 			defer c.Finish()
 
 			s := mock_interfaces.NewMockUserService(c)
-			test.mockBehavior(s, test.inpReq.Email, test.inpReq.Password)
+			test.mockBehavior(s, test.inpReq.Email)
 
 			ctrl := NewUserController(s)
-			res, err := ctrl.FindUserByCredentials(context.Background(), test.inpReq)
+			res, err := ctrl.FindUserByEmail(context.Background(), test.inpReq)
 
 			if test.expectedErr != nil && test.expectedErr.Error() != err.Error() {
 				t.Errorf("expected error %v got %v", test.expectedErr, err)

@@ -216,7 +216,7 @@ func (s *BaseSuite) TestListUsersWithFilter() {
 }
 
 func (s *BaseSuite) TestFindUserByCredentials() {
-	resp, err := s.svc.FindUserByCredentials(context.TODO(), testUser1.Email, testUser1.PasswordHash)
+	resp, err := s.svc.FindUserByEmail(context.TODO(), testUser1.Email)
 	s.NoError(err)
 
 	s.Equal(testUser1.ID, resp.Result.ID)

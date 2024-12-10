@@ -139,8 +139,8 @@ func (s *UserService) FindUserById(ctx context.Context, id string) (*query.UserQ
 	return &result, nil
 }
 
-func (s *UserService) FindUserByCredentials(ctx context.Context, email, passwordhash string) (*query.UserQueryResult, error) {
-	respUser, err := s.repo.FindByCredentials(ctx, email, passwordhash)
+func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*query.UserQueryResult, error) {
+	respUser, err := s.repo.FindByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}

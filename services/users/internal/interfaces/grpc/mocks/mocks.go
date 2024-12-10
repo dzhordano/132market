@@ -86,19 +86,19 @@ func (mr *MockUserServiceMockRecorder) DeleteUser(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockUserService)(nil).DeleteUser), ctx, id)
 }
 
-// FindUserByCredentials mocks base method.
-func (m *MockUserService) FindUserByCredentials(ctx context.Context, email, password string) (*query.UserQueryResult, error) {
+// FindUserByEmail mocks base method.
+func (m *MockUserService) FindUserByEmail(ctx context.Context, email string) (*query.UserQueryResult, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindUserByCredentials", ctx, email, password)
+	ret := m.ctrl.Call(m, "FindUserByEmail", ctx, email)
 	ret0, _ := ret[0].(*query.UserQueryResult)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// FindUserByCredentials indicates an expected call of FindUserByCredentials.
-func (mr *MockUserServiceMockRecorder) FindUserByCredentials(ctx, email, password any) *gomock.Call {
+// FindUserByEmail indicates an expected call of FindUserByEmail.
+func (mr *MockUserServiceMockRecorder) FindUserByEmail(ctx, email any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUserByCredentials", reflect.TypeOf((*MockUserService)(nil).FindUserByCredentials), ctx, email, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindUserByEmail", reflect.TypeOf((*MockUserService)(nil).FindUserByEmail), ctx, email)
 }
 
 // FindUserById mocks base method.

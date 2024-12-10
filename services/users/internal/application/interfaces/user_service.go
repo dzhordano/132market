@@ -12,7 +12,7 @@ type UserService interface {
 	UpdateUser(ctx context.Context, userCommand *command.UpdateUserCommand) (*command.UpdateUserCommandResult, error)
 	DeleteUser(ctx context.Context, id string) error
 	FindUserById(ctx context.Context, id string) (*query.UserQueryResult, error)
-	FindUserByCredentials(ctx context.Context, email, password string) (*query.UserQueryResult, error)
+	FindUserByEmail(ctx context.Context, email string) (*query.UserQueryResult, error)
 	ListUsers(ctx context.Context, offset, limit uint64, filters map[string]string) (*query.UserQueryListResult, error)
 
 	CheckUserExists(ctx context.Context, email string) (bool, error)

@@ -66,15 +66,15 @@ func (u *UserController) FindUserById(ctx context.Context, request *user_v1.Find
 	return &user_v1.FindUserByIdResponse{User: response}, nil
 }
 
-func (u *UserController) FindUserByCredentials(ctx context.Context, request *user_v1.FindUserByCredentialsRequest) (*user_v1.FindUserByCredentialsResponse, error) {
-	queryResp, err := u.userService.FindUserByCredentials(ctx, request.GetEmail(), request.GetPassword())
+func (u *UserController) FindUserByEmail(ctx context.Context, request *user_v1.FindUserByEmailRequest) (*user_v1.FindUserByEmailResponse, error) {
+	queryResp, err := u.userService.FindUserByEmail(ctx, request.GetEmail())
 	if err != nil {
 		return nil, err
 	}
 
 	response := mapper.ToUserResponse(queryResp.Result)
 
-	return &user_v1.FindUserByCredentialsResponse{User: response}, nil
+	return &user_v1.FindUserByEmailResponse{User: response}, nil
 }
 
 func (u *UserController) ListUsers(ctx context.Context, request *user_v1.ListUsersRequest) (*user_v1.ListUsersResponse, error) {
