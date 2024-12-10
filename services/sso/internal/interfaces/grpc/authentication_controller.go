@@ -20,7 +20,7 @@ func NewAuthenticationController(as interfaces.AuthenticationService) *Authentic
 }
 
 func (c *AuthenticationController) Register(ctx context.Context, request *sso_v1.RegisterRequest) (*emptypb.Empty, error) {
-	err := c.authenticationService.Register(ctx, request.GetEmail(), request.GetPassword())
+	err := c.authenticationService.Register(ctx, request.GetName(), request.GetEmail(), request.GetPassword())
 	if err != nil {
 		return nil, err
 	}

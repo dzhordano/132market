@@ -74,4 +74,4 @@ func ValidRole(role string) bool {
 	return false
 }
 
-// TODO validation from email and password needed
+// TODO validation for email and password needed

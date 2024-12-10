@@ -20,8 +20,8 @@ func NewUsersRepository(db *pgxpool.Pool) repository.UsersRepository {
 
 func (r *UsersRepository) Save(ctx context.Context, user *entities.User) error {
 	insertQuery := sq.Insert("users").
-		Columns("id", "email", "roles", "state", "created_at", "updated_at", "deleted_at").
-		Values(user.ID, user.Email, user.Roles, user.State, user.CreatedAt, user.UpdatedAt, user.DeletedAt).
+		Columns("id", "email", "password_hash", "roles", "state", "created_at", "updated_at", "deleted_at").
+		Values(user.ID, user.Email, user.Password, user.Roles, user.State, user.CreatedAt, user.UpdatedAt, user.DeletedAt).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := insertQuery.ToSql()
@@ -34,7 +34,7 @@ func (r *UsersRepository) Save(ctx context.Context, user *entities.User) error {
 }
 
 func (r *UsersRepository) FindById(ctx context.Context, id string) (*entities.User, error) {
-	selectQuery := sq.Select("id", "email", "roles", "state", "created_at", "updated_at", "deleted_at").
+	selectQuery := sq.Select("id", "email", "password_hash", "roles", "state", "created_at", "updated_at", "deleted_at").
 		From("users").
 		Where(sq.Eq{"id": id}).
 		PlaceholderFormat(sq.Dollar)
@@ -45,7 +45,7 @@ func (r *UsersRepository) FindById(ctx context.Context, id string) (*entities.Us
 	}
 
 	var user entities.User
-	if err := r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Email, &user.Roles, &user.State, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt); err != nil {
+	if err := r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Email, &user.Password, &user.Roles, &user.State, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt); err != nil {
 		return nil, err
 	}
 
@@ -53,7 +53,7 @@ func (r *UsersRepository) FindById(ctx context.Context, id string) (*entities.Us
 }
 
 func (r *UsersRepository) FindByEmail(ctx context.Context, email string) (*entities.User, error) {
-	selectQuery := sq.Select("id", "email", "roles", "state", "created_at", "updated_at", "deleted_at").
+	selectQuery := sq.Select("id", "email", "password_hash", "roles", "state", "created_at", "updated_at", "deleted_at").
 		From("users").
 		Where(sq.Eq{"email": email}).
 		PlaceholderFormat(sq.Dollar)
@@ -64,7 +64,7 @@ func (r *UsersRepository) FindByEmail(ctx context.Context, email string) (*entit
 	}
 
 	var user entities.User
-	if err := r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Email, &user.Roles, &user.State, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt); err != nil {
+	if err := r.db.QueryRow(ctx, query, args...).Scan(&user.ID, &user.Email, &user.Password, &user.Roles, &user.State, &user.CreatedAt, &user.UpdatedAt, &user.DeletedAt); err != nil {
 		return nil, err
 	}
 

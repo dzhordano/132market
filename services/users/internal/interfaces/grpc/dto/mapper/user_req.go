@@ -7,17 +7,15 @@ import (
 
 func CreateUserRequestToCommand(req *user_v1.CreateUserRequest) *command.CreateUserCommand {
 	return &command.CreateUserCommand{
-		Name:         req.Info.GetName(),
-		Email:        req.Info.GetEmail(),
-		PasswordHash: req.Info.GetPassword(),
+		Name:  req.Info.GetName(),
+		Email: req.Info.GetEmail(),
 	}
 }
 
 func UpdateUserRequestToCommand(req *user_v1.UpdateUserRequest) *command.UpdateUserCommand {
 	return &command.UpdateUserCommand{
-		ID:           req.GetId(),
-		Name:         req.Info.GetName(),
-		Email:        req.Info.GetEmail(),
-		PasswordHash: req.Info.GetPassword(),
+		ID:    req.GetId(),
+		Name:  req.Info.GetName(),
+		Email: req.Info.GetEmail(),
 	}
 }

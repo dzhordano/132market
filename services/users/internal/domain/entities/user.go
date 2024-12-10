@@ -11,16 +11,15 @@ import (
 )
 
 type User struct {
-	ID           uuid.UUID
-	Name         string
-	Email        string
-	PasswordHash string
-	Roles        []Role
-	Status       Status
-	State        State
-	CreatedAt    time.Time
-	LastSeenAt   time.Time
-	DeletedAt    time.Time
+	ID         uuid.UUID
+	Name       string
+	Email      string
+	Roles      []Role
+	Status     Status
+	State      State
+	CreatedAt  time.Time
+	LastSeenAt time.Time
+	DeletedAt  time.Time
 }
 
 type Role string
@@ -95,7 +94,7 @@ func (u *User) ChangeState(state State) {
 	u.State = state
 }
 
-func NewUser(name, email, password string) (*User, error) {
+func NewUser(name, email string) (*User, error) {
 	var user *User
 
 	id, err := uuid.NewUUID()
@@ -104,15 +103,14 @@ func NewUser(name, email, password string) (*User, error) {
 	}
 
 	user = &User{
-		ID:           id,
-		Name:         name,
-		Email:        email,
-		PasswordHash: password,
-		Status:       StatusOffline,
-		State:        StateActive,
-		CreatedAt:    time.Now(),
-		LastSeenAt:   time.Now(),
-		DeletedAt:    time.Time{},
+		ID:         id,
+		Name:       name,
+		Email:      email,
+		Status:     StatusOffline,
+		State:      StateActive,
+		CreatedAt:  time.Now(),
+		LastSeenAt: time.Now(),
+		DeletedAt:  time.Time{},
 	}
 
 	user.AddRole(RoleUser)
@@ -140,16 +138,6 @@ func (u *User) UpdateEmail(newEmail string) error {
 	return u.ValidateEmail()
 }
 
-func (u *User) UpdatePassword(newPassword string) error {
-	u.PasswordHash = newPassword
-
-	if u.PasswordHash == "" {
-		return errors.New("invalid password")
-	}
-
-	return nil
-}
-
 const symbols = `$*()#@!%/`
 const digits = "0123456789"
 
@@ -165,10 +153,6 @@ func (u *User) Validate() (errs []error) {
 
 	if err := u.ValidateEmail(); err != nil {
 		errs = append(errs, err)
-	}
-
-	if u.PasswordHash == "" {
-		errs = append(errs, errors.New("invalid uuid"))
 	}
 
 	return

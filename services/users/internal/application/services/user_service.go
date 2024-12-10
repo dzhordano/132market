@@ -38,7 +38,7 @@ func NewUserService(logger logger.Logger, repo repository.UserRepository) interf
 }
 
 func (s *UserService) CreateUser(ctx context.Context, userCommand *command.CreateUserCommand) (*command.CreateUserCommandResult, error) {
-	newUser, err := entities.NewUser(userCommand.Name, userCommand.Email, userCommand.PasswordHash)
+	newUser, err := entities.NewUser(userCommand.Name, userCommand.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -48,15 +48,15 @@ func (s *UserService) CreateUser(ctx context.Context, userCommand *command.Creat
 		return nil, svcErrors.ToGRPCErrors(svcErrors.ErrBadRequest, errs)
 	}
 
-	s.logger.Debug("User created and validated:", slog.Any("user", newUser))
+	s.logger.Info("User created and validated:", slog.Any("user", newUser))
 
 	respUser, err := s.repo.Save(ctx, newUser)
 	if err != nil {
-		s.logger.Debug("Returning error: ", err)
+		s.logger.Info("Returning error: ", err)
 		return nil, svcErrors.ToGRPCError(err)
 	}
 
-	s.logger.Debug("User saved:", slog.Any("user", respUser))
+	s.logger.Info("User saved:", slog.Any("user", respUser))
 
 	result := command.CreateUserCommandResult{
 		Result: mapper.NewUserResultFromEntity(respUser),
@@ -76,25 +76,24 @@ func (s *UserService) UpdateUser(ctx context.Context, userCommand *command.Updat
 		return nil, err
 	}
 
-	s.logger.Debug("User found:", slog.Any("user", user))
+	s.logger.Info("User found:", slog.Any("user", user))
 
 	user.UpdateName(userCommand.Name)
 	user.UpdateEmail(userCommand.Email)
-	user.UpdatePassword(userCommand.PasswordHash)
 
 	errs := user.Validate()
 	if len(errs) > 0 {
 		return nil, svcErrors.ToGRPCErrors(svcErrors.ErrBadRequest, errs)
 	}
 
-	s.logger.Debug("User updated and validated:", slog.Any("user", user))
+	s.logger.Info("User updated and validated:", slog.Any("user", user))
 
 	respUser, err := s.repo.Update(ctx, user)
 	if err != nil {
 		return nil, svcErrors.ToGRPCError(svcErrors.ErrBadRequest)
 	}
 
-	s.logger.Debug("User updated:", slog.Any("user", respUser))
+	s.logger.Info("User updated:", slog.Any("user", respUser))
 
 	result := command.UpdateUserCommandResult{
 		Result: mapper.NewUserResultFromEntity(respUser),
@@ -114,7 +113,7 @@ func (s *UserService) DeleteUser(ctx context.Context, id string) error {
 		return err
 	}
 
-	s.logger.Debug("User deleted (soft):", slog.Any("id", id))
+	s.logger.Info("User deleted (soft):", slog.Any("id", id))
 
 	return nil
 }
@@ -130,7 +129,7 @@ func (s *UserService) FindUserById(ctx context.Context, id string) (*query.UserQ
 		return nil, err
 	}
 
-	s.logger.Debug("User found:", slog.Any("user", respUser))
+	s.logger.Info("User found:", slog.Any("user", respUser))
 
 	result := query.UserQueryResult{
 		Result: mapper.NewUserResultFromEntity(respUser),
@@ -145,7 +144,7 @@ func (s *UserService) FindUserByEmail(ctx context.Context, email string) (*query
 		return nil, err
 	}
 
-	s.logger.Debug("User found:", slog.Any("user", respUser))
+	s.logger.Info("User found:", slog.Any("user", respUser))
 
 	result := query.UserQueryResult{
 		Result: mapper.NewUserResultFromEntity(respUser),
@@ -176,7 +175,7 @@ func (s *UserService) ListUsers(ctx context.Context, offset, limit uint64, filte
 		return nil, svcErrors.ToGRPCError(err)
 	}
 
-	s.logger.Debug("Users found:", slog.Any("users", respUsers[:min(int(limit), len(respUsers))]))
+	s.logger.Info("Users found:", slog.Any("users", respUsers[:min(int(limit), len(respUsers))]))
 
 	result := query.UserQueryListResult{
 		Result: mapper.NewUserResultListFromEntities(respUsers),
@@ -209,7 +208,7 @@ func (s *UserService) UpdateLastSeen(ctx context.Context, id string) error {
 		return err
 	}
 
-	s.logger.Debug("User last seen updated:", slog.Any("id", id))
+	s.logger.Info("User last seen updated:", slog.Any("id", id))
 
 	return nil
 }
@@ -229,7 +228,7 @@ func (s *UserService) SetUserState(ctx context.Context, id string, state string)
 		return err
 	}
 
-	s.logger.Debug("User status updated:", slog.Any("id", id), slog.Any("state", state))
+	s.logger.Info("User status updated:", slog.Any("id", id), slog.Any("state", state))
 
 	return nil
 }

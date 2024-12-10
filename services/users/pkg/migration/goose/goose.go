@@ -2,6 +2,7 @@ package goose
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -19,6 +20,8 @@ func Run(ctx context.Context, dir, dbString, command string) error {
 			log.Fatalf("goose: failed to close DB: %v\n", err)
 		}
 	}()
+
+	fmt.Println("dir", dir)
 
 	// FIXME IDK why dir formats from ../../migrations to ./migrations. ?????
 	return goose.RunContext(ctx, command, db, dir, []string{dbString, command}...)

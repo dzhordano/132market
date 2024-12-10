@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"sync"
 
 	"github.com/dzhordano/132market/services/sso/config"
 	"github.com/dzhordano/132market/services/sso/internal/application/services"
+	"github.com/dzhordano/132market/services/sso/internal/infrastructure/clients/grpc/users"
 	"github.com/dzhordano/132market/services/sso/internal/infrastructure/db/postgres"
 	"github.com/dzhordano/132market/services/sso/internal/infrastructure/grpc"
 	"github.com/dzhordano/132market/services/sso/pkg/hasher"
@@ -16,8 +16,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello, World!")
-
 	// LOGGER
 
 	log := logger.NewTintSlogLogger(os.Stdout, &slog.HandlerOptions{
@@ -59,10 +57,18 @@ func main() {
 
 	tokens := jwt.NewJwtService(tokenGenerator, tokenValidator)
 
+	// CLIENTS
+
+	// FIXME REFACTOR
+	uMcsvc, err := users.NewUsersClient(config.MustNewGrpcUsersConfig().Address())
+	if err != nil {
+		log.Error("Failed to create grpc client:", slog.String("error", err.Error()))
+	}
+
 	// SERVICES
 
 	uSvc := services.NewUsersService(log, uRepo)
-	athSvc := services.NewAuthenticationService(log, uSvc, tokens, h)
+	athSvc := services.NewAuthenticationService(log, uSvc, uMcsvc, tokens, h)
 	atrSvc := services.NewAuthorizationService(log, uSvc, tokenValidator, rRepo)
 	vSvc := services.NewTokenValidationService(log, tokenValidator)
 

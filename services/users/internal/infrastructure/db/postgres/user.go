@@ -44,7 +44,7 @@ func (r *UserRepository) FindById(ctx context.Context, id uuid.UUID) (*entities.
 	row := r.db.QueryRow(ctx, query, args...)
 
 	var user entities.User
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) {
 			if pgErr.Code == pgerrcode.NoDataFound {
@@ -74,37 +74,7 @@ func (r *UserRepository) FindByEmail(ctx context.Context, email string) (*entiti
 	row := r.db.QueryRow(ctx, query, args...)
 	var user entities.User
 
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
-		}
-
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
-	return &user, nil
-}
-
-func (r *UserRepository) FindByCredentials(ctx context.Context, email, password string) (*entities.User, error) {
-	const op = "repository.user.FindByCredentials"
-
-	selectBuilder := sq.Select("*").
-		From(usersTable).
-		Where(sq.And{
-			sq.Eq{"email": email},
-			sq.Eq{"password_hash": password},
-		}).
-		PlaceholderFormat(sq.Dollar)
-
-	query, args, err := selectBuilder.ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("%s: %w", op, err)
-	}
-
-	row := r.db.QueryRow(ctx, query, args...)
-
-	var user entities.User
-	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, fmt.Errorf("%s: %w", op, ErrNotFound)
 		}
@@ -142,7 +112,7 @@ func (r *UserRepository) FindAll(ctx context.Context, offset, limit uint64, filt
 	var users []*entities.User
 	for rows.Next() {
 		var user entities.User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
+		if err := rows.Scan(&user.ID, &user.Name, &user.Email, &user.Roles, &user.Status, &user.State, &user.CreatedAt, &user.LastSeenAt, &user.DeletedAt); err != nil {
 			return nil, fmt.Errorf("%s: %w", op, err)
 		}
 		users = append(users, &user)
@@ -165,8 +135,8 @@ func (r *UserRepository) Save(ctx context.Context, user *entities.User) (*entiti
 	const op = "repository.user.Save"
 
 	insertBuilder := sq.Insert(usersTable).
-		Columns("id", "name", "email", "password_hash", "roles", "status", "state", "created_at", "last_seen_at", "deleted_at").
-		Values(user.ID, user.Name, user.Email, user.PasswordHash, user.RolesToStrings(), user.Status, user.State, user.CreatedAt, user.LastSeenAt, user.DeletedAt).
+		Columns("id", "name", "email", "roles", "status", "state", "created_at", "last_seen_at", "deleted_at").
+		Values(user.ID, user.Name, user.Email, user.RolesToStrings(), user.Status, user.State, user.CreatedAt, user.LastSeenAt, user.DeletedAt).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := insertBuilder.ToSql()
@@ -195,7 +165,6 @@ func (r *UserRepository) Update(ctx context.Context, user *entities.User) (*enti
 	updateBuilder := sq.Update(usersTable).
 		Set("name", user.Name).
 		Set("email", user.Email).
-		Set("password_hash", user.PasswordHash).
 		Set("roles", user.RolesToStrings()).
 		Set("status", user.Status).
 		Set("state", user.State).

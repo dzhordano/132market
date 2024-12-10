@@ -5,28 +5,31 @@ import (
 
 	"github.com/dzhordano/132market/services/sso/internal/application/interfaces"
 	"github.com/dzhordano/132market/services/sso/internal/domain/entities"
+	"github.com/dzhordano/132market/services/sso/internal/infrastructure/clients/grpc/users"
 	"github.com/dzhordano/132market/services/sso/pkg/hasher"
 	jwtManager "github.com/dzhordano/132market/services/sso/pkg/jwt"
 	"github.com/dzhordano/132market/services/sso/pkg/logger"
 )
 
 type AuthenticationService struct {
-	log      logger.Logger
-	usersSvc interfaces.UsersService
-	tokens   jwtManager.TokenManager
-	hasher   hasher.PasswordHasher
+	log        logger.Logger
+	usersSvc   interfaces.UsersService
+	usersMcsvc users.UsersClientInterface
+	tokens     jwtManager.TokenManager
+	hasher     hasher.PasswordHasher
 }
 
-func NewAuthenticationService(log logger.Logger, usersSvc interfaces.UsersService, tokens jwtManager.TokenManager, hasher hasher.PasswordHasher) interfaces.AuthenticationService {
+func NewAuthenticationService(log logger.Logger, usersSvc interfaces.UsersService, usersMicrosvc users.UsersClientInterface, tokens jwtManager.TokenManager, hasher hasher.PasswordHasher) interfaces.AuthenticationService {
 	return &AuthenticationService{
-		log:      log,
-		usersSvc: usersSvc,
-		tokens:   tokens,
-		hasher:   hasher,
+		log:        log,
+		usersSvc:   usersSvc,
+		usersMcsvc: usersMicrosvc,
+		tokens:     tokens,
+		hasher:     hasher,
 	}
 }
 
-func (s *AuthenticationService) Register(ctx context.Context, email, password string) error {
+func (s *AuthenticationService) Register(ctx context.Context, name, email, password string) error {
 	hashedPass, err := s.hasher.Hash(password)
 	if err != nil {
 		return err
@@ -36,7 +39,16 @@ func (s *AuthenticationService) Register(ctx context.Context, email, password st
 		return err
 	}
 
-	// FIXME save in users microservice
+	// FIXME need concurrency
+	// if _, err := s.usersMcsvc.CreateUser(ctx, &user_v1.CreateUserRequest{
+	// 	Info: &user_v1.UserInfo{
+	// 		Name:     name,
+	// 		Email:    email,
+	// 		Password: hashedPass,
+	// 	},
+	// }); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
@@ -47,7 +59,9 @@ func (s *AuthenticationService) Login(ctx context.Context, email, password strin
 		return nil, err
 	}
 
-	// TODO check password hash in users microservice
+	if err := s.hasher.Verify(user.Password, password); err != nil {
+		return nil, err
+	}
 
 	accessToken, err := s.tokens.GenerateAccessToken(user.ID.String(), user.Roles)
 	if err != nil {

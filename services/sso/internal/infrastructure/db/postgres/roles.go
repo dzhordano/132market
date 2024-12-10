@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 
+	"github.com/Masterminds/squirrel"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/dzhordano/132market/services/sso/internal/domain/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -35,10 +36,16 @@ func (r *RolesRepository) RolesById(ctx context.Context, id string) ([]string, e
 	return roles, nil
 }
 
-func (r *RolesRepository) RolesPermissions(ctx context.Context, roleS []string) ([]string, error) {
-	selectQuery := sq.Select("permissions").
-		From("roles").
-		Where(sq.Eq{"name": roleS}).
+func (r *RolesRepository) RolesPermissions(ctx context.Context, roles []string) ([]string, error) {
+	selectQuery := sq.Select("permission").
+		From("roles_permissions")
+
+	condOd := squirrel.Or{}
+	for _, role := range roles {
+		condOd = append(condOd, squirrel.Eq{"role": role})
+	}
+	selectQuery = selectQuery.
+		Where(condOd).
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := selectQuery.ToSql()

@@ -70,15 +70,15 @@ var (
 )
 
 func (s *BaseSuite) seedData() {
-	u1, err := entities.NewUser("u1", "email1@mail.ru", "p@ssw0Rd")
+	u1, err := entities.NewUser("usernameA", "email1@mail.ru")
 	if err != nil {
 		s.T().Fatalf("Failed to create user 1: %v", err)
 	}
-	u2, err := entities.NewUser("u2", "email2@mail.ru", "p@ssw0Rd")
+	u2, err := entities.NewUser("usernameB", "email2@mail.ru")
 	if err != nil {
 		s.T().Fatalf("Failed to create user 2: %v", err)
 	}
-	u3, err := entities.NewUser("u3", "email3@mail.ru", "p@ssw0Rd")
+	u3, err := entities.NewUser("usernameC", "email3@mail.ru")
 	if err != nil {
 		s.T().Fatalf("Failed to create user 3: %v", err)
 	}
@@ -98,13 +98,12 @@ func (s *BaseSuite) seedData() {
 
 func (s *BaseSuite) TestCreateUser() {
 	resp, err := s.svc.CreateUser(context.TODO(), &command.CreateUserCommand{
-		Name:         "u4",
-		Email:        "email4@mail.ru",
-		PasswordHash: "p@ssw0Rd",
+		Name:  "usernameD",
+		Email: "email4@mail.ru",
 	})
 	s.NoError(err)
 
-	s.Equal("u4", resp.Result.Name)
+	s.Equal("usernameD", resp.Result.Name)
 	s.Equal("email4@mail.ru", resp.Result.Email)
 }
 
@@ -125,10 +124,9 @@ func (s *BaseSuite) TestUpdateUser() {
 	oldUser1 := testUser1
 
 	updatedUser1, err := s.svc.UpdateUser(context.TODO(), &command.UpdateUserCommand{
-		ID:           testUser1.ID.String(),
-		Name:         "u1_NewName",
-		Email:        "email1@mail.ru",
-		PasswordHash: "p@ssw0Rd",
+		ID:    testUser1.ID.String(),
+		Name:  "usernameE",
+		Email: "email1@mail.ru",
 	})
 	s.NoError(err)
 
@@ -154,6 +152,10 @@ func (s *BaseSuite) TestListUsersNoFilter() {
 	s.NoError(err)
 
 	s.Equal(3, len(users.Result))
+
+	fmt.Println("HERE")
+	fmt.Println(users.Result[0].ID, users.Result[1].ID, users.Result[2].ID)
+	fmt.Println(testUser1.ID, testUser2.ID, testUser3.ID)
 
 	s.Equal(testUser1.ID, users.Result[0].ID)
 	s.Equal(testUser2.ID, users.Result[1].ID)

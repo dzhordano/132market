@@ -44,7 +44,14 @@ func (a *AuthorizationService) GetUserPermissions(ctx context.Context, token str
 		return nil, err
 	}
 
-	permissions, err := a.repository.RolesPermissions(ctx, claims["roles"].([]string))
+	rolesIntf := claims["roles"].([]interface{})
+
+	var roles []string
+	for _, r := range rolesIntf {
+		roles = append(roles, r.(string))
+	}
+
+	permissions, err := a.repository.RolesPermissions(ctx, roles)
 	if err != nil {
 		return nil, err
 	}
